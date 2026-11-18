@@ -15,30 +15,31 @@ export default function Sheet({ open, onClose, title, children }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/60"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-[2px]"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
       aria-labelledby="sheet-title"
     >
       <div
-        className="card-surface w-full max-w-lg bg-white text-[#1A1A2E] rounded-t-2xl p-6 max-h-[85vh] overflow-y-auto shadow-2xl"
+        className="card-surface w-full max-w-md bg-[#F4F3EF] text-[#0A0A0A] border-t-2 border-x-2 border-[#0A0A0A] rounded-t-[32px] p-6 max-h-[85vh] overflow-y-auto shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between gap-4 pb-4 border-b border-slate-200">
-          <h2 id="sheet-title" className="text-[1.45rem] font-bold">
+        <div className="w-12 h-1.5 bg-[#0A0A0A]/25 rounded-full mx-auto mb-4" />
+        <div className="flex items-center justify-between gap-4 pb-4 border-b-2 border-[#0A0A0A]/15">
+          <h2 id="sheet-title" className="text-[1.45rem] font-extrabold tracking-[-0.02em]">
             {title}
           </h2>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="min-w-[48px] min-h-[48px] flex items-center justify-center rounded-xl border border-slate-300"
+            className="w-12 h-12 flex items-center justify-center rounded-full border-2 border-[#0A0A0A] bg-white hover:bg-[#FFD600] transition"
           >
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5 stroke-[2.5]" />
           </button>
         </div>
-        <div className="pt-4">{children}</div>
+        <div className="pt-5">{children}</div>
       </div>
     </div>
   );

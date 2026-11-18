@@ -46,15 +46,17 @@ export default function Accessibility({ open, onClose }) {
             role="switch"
             aria-checked={value}
             onClick={toggle}
-            className="w-full min-h-[60px] px-4 rounded-xl border-2 border-[#1A1A2E] flex items-center justify-between gap-3 font-bold"
+            className={`w-full min-h-[62px] px-5 rounded-full border-2 border-[#0A0A0A] flex items-center justify-between gap-3 font-extrabold transition ${
+              value ? 'bg-[#FFD600] text-[#0A0A0A]' : 'bg-white text-[#0A0A0A]'
+            }`}
           >
             <span className="flex items-center gap-3">
-              <Icon className="w-6 h-6 shrink-0" />
+              <Icon className="w-5 h-5 shrink-0 stroke-[2.5]" />
               <span>{label}</span>
             </span>
             <span
-              className={`px-3 py-1 rounded-full text-sm font-extrabold ${
-                value ? 'bg-[#15803D] text-white' : 'bg-slate-200 text-slate-800'
+              className={`px-3.5 py-1 rounded-full text-xs font-extrabold ${
+                value ? 'bg-[#0A0A0A] text-[#FFD600]' : 'bg-[#F4F3EF] text-[#0A0A0A] border border-[#0A0A0A]'
               }`}
             >
               {value ? 'ON' : 'OFF'}

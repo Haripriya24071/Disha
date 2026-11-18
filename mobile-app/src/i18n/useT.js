@@ -72,10 +72,10 @@ export function LangProvider({ children }) {
     return str;
   };
 
-  return (
-    <LangContext.Provider value={{ t, lang, setLang: setLangState }}>
-      {children}
-    </LangContext.Provider>
+  return React.createElement(
+    LangContext.Provider,
+    { value: { t, lang, setLang: setLangState } },
+    children
   );
 }
 
