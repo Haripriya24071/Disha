@@ -1,0 +1,5 @@
+{"success":true,"data":{"pnrNumber":"1234567890","dateOfJourney":"Dec 23, 2026 9:50:00 PM","trainNumber":"16236","trainName":"TUTICORIN EXP","sourceStation":"KGI","destinationStation":"TDN","reservationUpto":"TDN","boardingPoint":"CRLM","journeyClass":"3A","numberOfpassenger":3,"chartStatus":"Chart Not Prepared","passengerList":[
+{"passengerSerialNumber":1,"bookingStatus":"CNF","bookingCoachId":"B2","bookingBerthNo":6,"bookingBerthCode":"UB","bookingStatusDetails":"CNF/B2/6/UB","currentStatus":"CNF","currentCoachId":"","currentBerthNo":0,"currentStatusDetails":"CNF"},
+{"passengerSerialNumber":2,"bookingStatus":"CNF","bookingCoachId":"B2","bookingBerthNo":8,"bookingBerthCode":"SU","bookingStatusDetails":"CNF/B2/8/SU","currentStatus":"CNF","currentCoachId":"","currentBerthNo":0,"currentStatusDetails":"CNF"},
+{"passengerSerialNumber":3,"bookingStatus":"RAC","bookingCoachId":"","bookingBerthNo":1,"bookingStatusDetails":"RAC/1","currentStatus":"CNF","currentCoachId":"","currentBerthNo":0,"currentStatusDetails":"CNF"}],
+"timeStamp":"Nov 17, 2026 11:45:31 PM"},"generatedTimeStamp":1794939331412}
