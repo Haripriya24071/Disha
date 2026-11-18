@@ -1,16 +1,19 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
 @import "tailwindcss";
 
 @layer base {
   html {
     font-size: 18px;
+    font-family: 'Plus Jakarta Sans', 'Noto Sans', sans-serif;
   }
   html.text-large {
     font-size: 22px;
   }
   body {
-    background-color: #F0F4FF;
-    color: #1A1A2E;
+    background-color: #F4F3EF;
+    color: #0A0A0A;
     margin: 0;
+    -webkit-font-smoothing: antialiased;
   }
   html.high-contrast body {
     background-color: #000000 !important;
@@ -23,4 +26,19 @@
     color: #FFFFFF !important;
     border: 2px solid #FFFFFF !important;
   }
+}
+
+.train-speed-bg {
+  background-color: #FFD600;
+  background-image: linear-gradient(
+    198deg,
+    transparent 62%,
+    rgba(255, 255, 255, 0.45) 62.3%,
+    rgba(255, 255, 255, 0.45) 63.2%,
+    transparent 63.5%,
+    transparent 66%,
+    rgba(255, 255, 255, 0.35) 66.3%,
+    rgba(255, 255, 255, 0.35) 67%,
+    transparent 67.3%
+  );
 }

@@ -5,13 +5,10 @@ export function Term({ id, children, onOpenTerm }) {
     <button
       type="button"
       onClick={() => onOpenTerm(id)}
-      className="inline-flex items-center gap-1 underline decoration-dotted decoration-2 underline-offset-4 font-bold text-blue-800 px-1.5 py-1 min-h-[48px] rounded hover:bg-blue-100"
+      className="inline underline decoration-solid decoration-2 underline-offset-4 font-extrabold text-[#0A0A0A] hover:opacity-75 px-0.5 min-h-[44px]"
       aria-label={`${children} — tap for meaning`}
     >
-      <span>{children}</span>
-      <span className="text-xs border border-current rounded-full w-5 h-5 inline-flex items-center justify-center">
-        ?
-      </span>
+      {children}
     </button>
   );
 }

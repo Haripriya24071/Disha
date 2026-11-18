@@ -11,10 +11,10 @@ export default function BigButton({
   ariaLabel,
 }) {
   const variants = {
-    primary: 'bg-[#1A1A2E] text-white hover:bg-[#2a2a48]',
-    secondary: 'bg-white text-[#1A1A2E] border-2 border-[#1A1A2E] hover:bg-slate-100',
-    danger: 'bg-[#B91C1C] text-white hover:bg-[#991B1B]',
-    success: 'bg-[#15803D] text-white hover:bg-[#166534]',
+    primary: 'bg-[#0A0A0A] text-white border-2 border-[#0A0A0A] hover:bg-[#222222]',
+    secondary: 'bg-[#F4F3EF] text-[#0A0A0A] border-2 border-[#0A0A0A] hover:bg-white',
+    danger: 'bg-[#DC2626] text-white border-2 border-[#0A0A0A] hover:bg-[#B91C1C]',
+    success: 'bg-[#15803D] text-white border-2 border-[#0A0A0A] hover:bg-[#166534]',
   };
 
   return (
@@ -23,9 +23,9 @@ export default function BigButton({
       onClick={onClick}
       disabled={disabled}
       aria-label={ariaLabel}
-      className={`w-full min-h-[56px] px-5 py-3 rounded-xl font-bold text-[1.1rem] flex items-center justify-center gap-3 transition active:scale-[0.99] disabled:opacity-50 ${variants[variant]} ${className}`}
+      className={`w-full min-h-[58px] px-6 py-3 rounded-full font-extrabold text-[1.05rem] tracking-tight flex items-center justify-center gap-2.5 transition active:scale-[0.98] disabled:opacity-50 ${variants[variant]} ${className}`}
     >
-      {Icon && <Icon className="w-6 h-6 shrink-0" aria-hidden="true" />}
+      {Icon && <Icon className="w-5 h-5 shrink-0" aria-hidden="true" />}
       <span>{children}</span>
     </button>
   );

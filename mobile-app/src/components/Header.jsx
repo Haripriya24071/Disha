@@ -7,21 +7,21 @@ export default function Header({ title, onBack }) {
   const { t } = useT();
 
   return (
-    <header className="sticky top-0 z-40 bg-[#F0F4FF] border-b border-slate-300 px-4 py-3">
-      <div className="max-w-lg mx-auto flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
+    <header className="sticky top-0 z-40 bg-[#F4F3EF]/95 backdrop-blur-sm px-5 pt-5 pb-3">
+      <div className="max-w-md mx-auto flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5">
           {onBack && (
             <button
               type="button"
               onClick={onBack}
               aria-label="Back"
-              className="min-w-[48px] min-h-[48px] flex items-center justify-center rounded-xl border-2 border-[#1A1A2E] bg-white"
+              className="w-12 h-12 flex items-center justify-center rounded-full border-2 border-[#0A0A0A] bg-[#F4F3EF] hover:bg-white transition"
             >
-              <ArrowLeft className="w-6 h-6" />
+              <ArrowLeft className="w-5 h-5 stroke-[2.5]" />
             </button>
           )}
-          <span className="text-[1.45rem] font-extrabold tracking-tight">
-            {title || t('ui.app_name')}
+          <span className="text-[1.75rem] font-extrabold tracking-[-0.03em] text-[#0A0A0A]">
+            {title || 'Disha'}
           </span>
         </div>
         <LangDropdown />

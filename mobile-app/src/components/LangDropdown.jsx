@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Globe, ChevronDown, Check } from 'lucide-react';
+import { ChevronDown, Check } from 'lucide-react';
 import { useT, LANGUAGES } from '../i18n/useT';
 import Sheet from './Sheet';
 
@@ -16,15 +16,14 @@ export default function LangDropdown() {
         onClick={() => setOpen(true)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        className="min-h-[56px] px-4 rounded-xl bg-white text-[#1A1A2E] border-2 border-[#1A1A2E] font-bold flex items-center gap-2"
+        className="min-h-[48px] px-5 rounded-full bg-[#F4F3EF] text-[#0A0A0A] border-2 border-[#0A0A0A] font-bold text-base flex items-center gap-2 hover:bg-white transition"
       >
-        <Globe className="w-5 h-5" aria-hidden="true" />
         <span lang={current.code}>{current.native}</span>
-        <ChevronDown className="w-5 h-5" aria-hidden="true" />
+        <ChevronDown className="w-4 h-4 stroke-[2.5]" aria-hidden="true" />
       </button>
 
       <Sheet open={open} onClose={() => setOpen(false)} title="Language / भाषा / ಭಾಷೆ">
-        <div className="grid grid-cols-1 gap-2" role="listbox">
+        <div className="grid grid-cols-1 gap-2.5" role="listbox">
           {LANGUAGES.map((item) => {
             const active = item.code === lang;
             return (
@@ -36,14 +35,14 @@ export default function LangDropdown() {
                   setLang(item.code);
                   setOpen(false);
                 }}
-                className={`min-h-[56px] px-4 rounded-xl border-2 flex items-center justify-between text-left font-bold ${
+                className={`min-h-[56px] px-6 rounded-full border-2 border-[#0A0A0A] flex items-center justify-between text-left font-extrabold ${
                   active
-                    ? 'bg-[#1A1A2E] text-white border-[#1A1A2E]'
-                    : 'bg-white text-[#1A1A2E] border-slate-300'
+                    ? 'bg-[#0A0A0A] text-[#FFD600]'
+                    : 'bg-[#F4F3EF] text-[#0A0A0A] hover:bg-white'
                 }`}
               >
                 <span>{item.native}</span>
-                {active && <Check className="w-6 h-6" aria-hidden="true" />}
+                {active && <Check className="w-5 h-5" aria-hidden="true" />}
               </button>
             );
           })}
