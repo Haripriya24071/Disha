@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+@layer base {
+  html {
+    font-size: 18px;
+  }
+  html.text-large {
+    font-size: 22px;
+  }
+  body {
+    background-color: #F0F4FF;
+    color: #1A1A2E;
+    margin: 0;
+  }
+  html.high-contrast body {
+    background-color: #000000 !important;
+    color: #FFFFFF !important;
+  }
+  html.high-contrast button,
+  html.high-contrast input,
+  html.high-contrast .card-surface {
+    background-color: #111111 !important;
+    color: #FFFFFF !important;
+    border: 2px solid #FFFFFF !important;
+  }
+}
