@@ -235,6 +235,7 @@ export default function S2Journey({ journeyState, onOpenBackup }) {
         open={activeSheet === 'alerts'}
         onClose={() => setActiveSheet(null)}
         pnr={journey?.pnr}
+        apiBaseUrl={import.meta.env.VITE_API_URL || ''}
       />
     </div>
   );
