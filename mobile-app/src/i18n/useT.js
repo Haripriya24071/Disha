@@ -3,6 +3,12 @@ import en from './en.json';
 
 const LangContext = createContext();
 
+// Vite discovers and bundles these JSON dictionaries at build time.
+const dictionaries = import.meta.glob('./*.json', {
+  eager: true,
+  import: 'default',
+});
+
 export const LANGUAGES = [
   { code: 'en', native: 'English' },
   { code: 'kn', native: 'ಕನ್ನಡ' },
@@ -29,6 +35,7 @@ export function LangProvider({ children }) {
   const [lang, setLangState] = useState(() => {
     const saved = localStorage.getItem('lang');
     if (saved && FONT_MAP[saved]) return saved;
+
     const browser = navigator.language?.split('-')[0];
     return FONT_MAP[browser] ? browser : 'en';
   });
@@ -40,35 +47,37 @@ export function LangProvider({ children }) {
     localStorage.setItem('lang', lang);
 
     const fontName = FONT_MAP[lang] || 'Noto Sans';
-    const fontUrl = `https://fonts.googleapis.com/css2?family=${fontName.replace(/ /g, '+')}:wght@400;600;700&display=swap`;
+    const fontUrl =
+      `https://fonts.googleapis.com/css2?family=${fontName.replace(/ /g, '+')}:wght@400;600;700&display=swap`;
+
     let link = document.getElementById('dynamic-lang-font');
+
     if (!link) {
       link = document.createElement('link');
       link.id = 'dynamic-lang-font';
       link.rel = 'stylesheet';
       document.head.appendChild(link);
     }
+
     link.href = fontUrl;
     document.body.style.fontFamily = `'${fontName}', sans-serif`;
 
-    if (lang === 'en') {
-      setDict(en);
-    } else {
-      import(`./${lang}.json`)
-        .then((mod) => setDict(mod.default || mod))
-        .catch(() => setDict(en));
-    }
+    const selectedDictionary = dictionaries[`./${lang}.json`];
+    setDict(selectedDictionary || en);
   }, [lang]);
 
   const t = (key, vars = {}) => {
     let str = dict[key];
+
     if (!str) {
       console.warn(`Missing key [${lang}]: ${key}`);
       str = en[key] || key;
     }
+
     Object.entries(vars).forEach(([k, v]) => {
       str = str.replace(new RegExp(`\\{${k}\\}`, 'g'), v ?? '');
     });
+
     return str;
   };
 

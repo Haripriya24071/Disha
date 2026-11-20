@@ -103,7 +103,7 @@ export function useJourney() {
 
       if (currentRequest !== requestId.current) return;
 
-      if (response.status === 400 || response.status === 404) {
+      if (response.status === 400) {
         setJourney(null);
         setStatus('error');
         setErrorCode('badpnr');
