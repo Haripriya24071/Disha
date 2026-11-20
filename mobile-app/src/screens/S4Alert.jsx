@@ -1,31 +1,35 @@
 import React, { useEffect, useRef } from 'react';
+import { Volume2, VolumeX, AlertTriangle, CheckCircle, Navigation } from 'lucide-react';
+import { useT } from '../i18n/useT';
+import { useSpeech } from '../hooks/useSpeech';
 
 /**
- * S4Alert — Haripriya
- * Full-screen urgent change alert shown immediately upon receiving a ChangeEvent.
- * 
- * Accessibility & Safety rules:
- * - Flashing rate strictly ≤ 2 flashes per second (photosensitive seizure safety)
- * - Respects prefers-reduced-motion (disables flashing, keeps bold high-contrast border)
- * - Focus automatically set to alertdialog heading
- * - Vibration pattern [300, 150, 300, 150, 600] where supported
- * - Big "Got it" button ≥ 64px
+ * S4Alert — Full-screen urgent change alert.
+ * Accessible, safe flashing (<= 2 flashes/s), vibration, and voice narration.
  */
-export function S4Alert({ event, onDismiss, onNavigateBackup, t, ListenButtonComponent, settings = { vibration: true } }) {
+export function S4Alert({
+  event,
+  onDismiss,
+  onOpenBackup,
+  onNavigateBackup,
+  settings = { vibration: true }
+}) {
+  const { t } = useT();
+  const { speak, speaking, cancel } = useSpeech();
   const headingRef = useRef(null);
 
-  // Trigger vibration and set focus upon appearance
+  const handleBackup = onOpenBackup || onNavigateBackup;
+
   useEffect(() => {
     if (headingRef.current) {
       headingRef.current.focus();
     }
 
-    // Check user vibration setting & browser support
     if (settings?.vibration && typeof navigator !== 'undefined' && navigator.vibrate) {
       try {
         navigator.vibrate([300, 150, 300, 150, 600]);
       } catch (err) {
-        console.warn('Vibration failed:', err);
+        // Vibration not supported or blocked
       }
     }
   }, [event, settings]);
@@ -35,13 +39,12 @@ export function S4Alert({ event, onDismiss, onNavigateBackup, t, ListenButtonCom
   const type = event.type || 'platform_changed';
   const data = event.data || {};
 
-  // Color schemes and content variants
   const isPlatformChange = type === 'platform_changed';
   const isDelayed = type === 'delayed';
   const isCancelled = type === 'cancelled';
   const isConfirmed = type === 'confirmed';
 
-  let alertTitle = 'ALERT';
+  let alertTitle = 'RAILWAY ALERT';
   let speechText = '';
 
   if (isPlatformChange) {
@@ -49,7 +52,10 @@ export function S4Alert({ event, onDismiss, onNavigateBackup, t, ListenButtonCom
     speechText = t('alert.platform', { to: data.to || '' });
   } else if (isDelayed) {
     alertTitle = 'TRAIN DELAYED';
-    speechText = t('alert.delay', { min: data.minutes || '45', time: data.new_departure ? new Date(data.new_departure).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '' });
+    const formattedTime = data.new_departure
+      ? new Date(data.new_departure).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      : '';
+    speechText = t('alert.delay', { min: data.minutes || '45', time: formattedTime });
   } else if (isCancelled) {
     alertTitle = 'TRAIN CANCELLED';
     speechText = t('alert.cancelled');
@@ -58,93 +64,120 @@ export function S4Alert({ event, onDismiss, onNavigateBackup, t, ListenButtonCom
     speechText = t('alert.confirmed', { coach: data.coach || '', berth: data.berth || '' });
   }
 
+  // Strip rich formatting tags for clean voice and text display
+  const cleanedSpeechText = speechText.replace(/\[\[.*?:(.*?)\]\]/g, '$1');
+
+  const bgColor = isConfirmed
+    ? 'bg-[#14532D]'
+    : isCancelled
+    ? 'bg-[#7F1D1D]'
+    : 'bg-[#7C2D12]';
+
   return (
     <div
       role="alertdialog"
       aria-modal="true"
       aria-live="assertive"
       aria-labelledby="alert-heading"
-      className="fixed inset-0 z-50 flex flex-col justify-between p-6 overflow-y-auto bg-amber-500 text-black animate-safe-flash reduced-motion:animate-none reduced-motion:border-8 reduced-motion:border-black"
-      style={{
-        backgroundColor: isConfirmed ? '#2E7D32' : isCancelled ? '#C62828' : '#E65100',
-        color: '#FFFFFF'
-      }}
+      className={`fixed inset-0 z-50 flex flex-col justify-between p-6 sm:p-8 overflow-y-auto ${bgColor} text-white animate-safe-flash`}
     >
-      {/* Top Banner */}
-      <div className="flex items-center justify-between pt-2">
-        <span className="text-2xl font-bold flex items-center gap-2">
-          <span aria-hidden="true">{isConfirmed ? '✔' : '⚠'}</span>
-          <span>DISHA ALERT</span>
-        </span>
-        {ListenButtonComponent && (
-          <ListenButtonComponent text={speechText} label={t('ui.listen')} />
-        )}
-      </div>
+      {/* Top Banner Bar */}
+      <header className="flex items-center justify-between pb-4 border-b border-white/20">
+        <div className="flex items-center gap-2">
+          {isConfirmed ? (
+            <CheckCircle className="w-8 h-8 text-emerald-300 stroke-[2.5]" />
+          ) : (
+            <AlertTriangle className="w-8 h-8 text-amber-300 stroke-[2.5]" />
+          )}
+          <span className="text-xl sm:text-2xl font-black tracking-wider uppercase">
+            DISHA LIVE ALERT
+          </span>
+        </div>
 
-      {/* Main Alert Content */}
-      <main className="my-auto text-center space-y-6 py-6">
+        <button
+          type="button"
+          onClick={() => (speaking ? cancel() : speak(cleanedSpeechText))}
+          className="min-h-[48px] px-4 py-2 rounded-full bg-white/20 hover:bg-white/30 text-white font-extrabold text-sm flex items-center gap-2 backdrop-blur-sm border border-white/40 active:scale-95 transition"
+        >
+          {speaking ? <VolumeX className="w-5 h-5 text-red-200" /> : <Volume2 className="w-5 h-5" />}
+          <span>{speaking ? t('ui.stop') : t('ui.listen')}</span>
+        </button>
+      </header>
+
+      {/* Main Alert Body */}
+      <main className="my-auto py-8 text-center space-y-6 max-w-lg mx-auto w-full">
         <h1
           id="alert-heading"
           ref={headingRef}
           tabIndex={-1}
-          className="text-3xl sm:text-4xl font-extrabold uppercase tracking-wide focus:outline-none drop-shadow-md"
+          className="text-3xl sm:text-4xl font-black uppercase tracking-wide focus:outline-none drop-shadow"
         >
           {alertTitle}
         </h1>
 
         {/* Variant 1: Platform Changed */}
         {isPlatformChange && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-center gap-6 font-mono font-black">
+          <div className="space-y-6">
+            <div className="flex items-center justify-center gap-4 sm:gap-6 font-mono font-black">
               {data.from && (
-                <span className="text-5xl line-through opacity-70 text-gray-200" aria-label={`Old platform ${data.from}`}>
-                  {data.from}
-                </span>
+                <div className="flex flex-col items-center">
+                  <span className="text-xs uppercase tracking-widest text-white/70">Previous</span>
+                  <span className="text-4xl sm:text-5xl line-through text-white/60">
+                    Plat {data.from}
+                  </span>
+                </div>
               )}
-              <span className="text-4xl" aria-hidden="true">➔</span>
-              <span
-                className="text-[96px] sm:text-[120px] leading-none font-extrabold bg-white text-black px-6 py-2 rounded-2xl shadow-2xl inline-block"
-                aria-label={`New platform ${data.to}`}
-              >
-                {data.to || '6'}
-              </span>
+              <span className="text-3xl sm:text-4xl text-amber-300" aria-hidden="true">➔</span>
+              <div className="flex flex-col items-center">
+                <span className="text-xs uppercase tracking-widest text-amber-300 font-bold">New Platform</span>
+                <span
+                  className="text-6xl sm:text-8xl leading-none font-black bg-white text-slate-900 px-6 py-3 rounded-2xl shadow-2xl border-4 border-amber-400"
+                  aria-label={`New platform ${data.to}`}
+                >
+                  {data.to || '6'}
+                </span>
+              </div>
             </div>
-            <p className="text-2xl sm:text-3xl font-semibold max-w-md mx-auto leading-relaxed">
-              {speechText}
+            <p className="text-xl sm:text-2xl font-bold leading-relaxed px-2">
+              {cleanedSpeechText}
             </p>
           </div>
         )}
 
-        {/* Variant 2: Delayed */}
+        {/* Variant 2: Train Delayed */}
         {isDelayed && (
-          <div className="space-y-4">
-            <div className="text-[72px] sm:text-[96px] font-black leading-none tracking-tight">
-              +{data.minutes || 45} min
+          <div className="space-y-6">
+            <div className="inline-block bg-white text-slate-900 px-8 py-4 rounded-3xl shadow-2xl border-4 border-amber-400 font-black">
+              <span className="text-5xl sm:text-7xl">+{data.minutes || 45}</span>
+              <span className="text-2xl sm:text-3xl ml-2">min late</span>
             </div>
-            <p className="text-2xl sm:text-3xl font-semibold max-w-md mx-auto leading-relaxed">
-              {speechText}
+            <p className="text-xl sm:text-2xl font-bold leading-relaxed px-2">
+              {cleanedSpeechText}
             </p>
           </div>
         )}
 
-        {/* Variant 3: Cancelled */}
+        {/* Variant 3: Train Cancelled */}
         {isCancelled && (
           <div className="space-y-6">
-            <div className="text-6xl" aria-hidden="true">✕</div>
-            <p className="text-2xl sm:text-3xl font-semibold max-w-md mx-auto leading-relaxed">
-              {speechText}
+            <div className="w-24 h-24 mx-auto rounded-full bg-red-600/60 border-4 border-white flex items-center justify-center text-5xl font-black">
+              ✕
+            </div>
+            <p className="text-xl sm:text-2xl font-bold leading-relaxed px-2">
+              {cleanedSpeechText}
             </p>
-            {onNavigateBackup && (
+            {handleBackup && (
               <div className="pt-2">
                 <button
                   type="button"
                   onClick={() => {
+                    cancel();
                     onDismiss();
-                    onNavigateBackup();
+                    handleBackup();
                   }}
-                  className="w-full max-w-sm mx-auto py-4 px-6 rounded-2xl bg-white text-red-900 font-bold text-xl min-h-[56px] shadow-lg hover:bg-gray-100 active:scale-95 transition flex items-center justify-center gap-2"
+                  className="w-full py-4 px-6 rounded-2xl bg-amber-400 text-slate-950 font-black text-lg min-h-[56px] shadow-xl hover:bg-amber-300 active:scale-95 transition flex items-center justify-center gap-2 border-2 border-white"
                 >
-                  <span aria-hidden="true">🧭</span>
+                  <Navigation className="w-5 h-5" />
                   <span>{t('ui.see_other_ways') || 'See other ways to travel'}</span>
                 </button>
               </div>
@@ -152,28 +185,35 @@ export function S4Alert({ event, onDismiss, onNavigateBackup, t, ListenButtonCom
           </div>
         )}
 
-        {/* Variant 4: Confirmed */}
+        {/* Variant 4: Ticket Confirmed */}
         {isConfirmed && (
-          <div className="space-y-4">
-            <div className="text-7xl font-bold" aria-hidden="true">✔</div>
-            <div className="text-3xl font-black">
-              Coach {data.coach || 'B2'}, Berth {data.berth || '45'}
+          <div className="space-y-6">
+            <div className="inline-block bg-white text-emerald-950 px-8 py-5 rounded-3xl shadow-2xl border-4 border-emerald-400">
+              <span className="block text-sm font-black uppercase tracking-wider text-emerald-800">
+                Assigned Berth
+              </span>
+              <span className="text-4xl sm:text-6xl font-black">
+                Coach {data.coach || 'B2'}, Berth {data.berth || '32'}
+              </span>
             </div>
-            <p className="text-2xl sm:text-3xl font-semibold max-w-md mx-auto leading-relaxed">
-              {speechText}
+            <p className="text-xl sm:text-2xl font-bold leading-relaxed px-2">
+              {cleanedSpeechText}
             </p>
           </div>
         )}
       </main>
 
-      {/* Primary Dismiss Button (Min 64px tall for accessibility) */}
-      <footer className="pt-4">
+      {/* Dismiss Button (min 64px for accessibility) */}
+      <footer className="pt-4 max-w-lg mx-auto w-full">
         <button
           type="button"
-          onClick={onDismiss}
-          className="w-full py-5 px-6 rounded-2xl bg-white text-black font-extrabold text-2xl min-h-[64px] shadow-2xl hover:bg-gray-100 active:scale-[0.99] transition flex items-center justify-center gap-3 border-4 border-black"
+          onClick={() => {
+            cancel();
+            onDismiss();
+          }}
+          className="w-full py-5 px-6 rounded-2xl bg-white text-slate-950 font-black text-xl sm:text-2xl min-h-[64px] shadow-2xl hover:bg-slate-100 active:scale-[0.98] transition flex items-center justify-center gap-3 border-4 border-slate-950"
         >
-          <span aria-hidden="true">✔</span>
+          <CheckCircle className="w-7 h-7 text-emerald-600" />
           <span>{t('ui.got_it') || 'Got it'}</span>
         </button>
       </footer>

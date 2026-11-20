@@ -1,18 +1,20 @@
 import React, { useState } from 'react';
-import { ShieldCheck } from 'lucide-react';
-import { useT } from '../i18n/useT';
+import { ShieldCheck, Train, CheckCircle2, ArrowRight, Globe } from 'lucide-react';
+import { useT, LANGUAGES } from '../i18n/useT';
 import Header from '../components/Header';
 import BigButton from '../components/BigButton';
 
 export default function S1Login({ onContinue }) {
-  const { t } = useT();
+  const { t, lang, setLang } = useT();
   const [phone, setPhone] = useState('');
   const [codeSent, setCodeSent] = useState(false);
   const [otp, setOtp] = useState('');
 
   const handleSendCode = (e) => {
     e.preventDefault();
-    if (phone.replace(/\D/g, '').length === 10) setCodeSent(true);
+    if (phone.replace(/\D/g, '').length === 10) {
+      setCodeSent(true);
+    }
   };
 
   const handleVerify = (e) => {
@@ -24,44 +26,81 @@ export default function S1Login({ onContinue }) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F4F3EF]">
+    <div className="min-h-screen flex flex-col bg-[#F8FAFC]">
       <Header />
-      <main className="flex-1 max-w-md w-full mx-auto px-5 py-4 space-y-5">
+
+      <main className="flex-1 max-w-md w-full mx-auto px-4 sm:px-5 py-5 space-y-5">
+        {/* Hero Branding Header */}
         <div>
-          <span className="inline-block bg-[#FFD600] px-2.5 py-0.5 font-extrabold text-sm tracking-tight mb-2">
-            Disha
+          <span className="inline-block bg-amber-400 text-slate-950 px-3 py-1 font-black text-xs uppercase tracking-wider rounded-md mb-2">
+            Disha · दिशा · ದಿಶಾ
           </span>
-          <h1 className="text-[1.75rem] font-extrabold leading-[1.15] tracking-[-0.03em] text-[#0A0A0A]">
-            We make your train journey as easy as possible.
+          <h1 className="text-2xl sm:text-3xl font-black leading-tight tracking-tight text-[#0A1E3F]">
+            Indian Railways information you can actually understand.
           </h1>
+          <p className="text-sm font-semibold text-slate-600 mt-2">
+            Plain language status, instant delay and platform alerts, and automatic backup options in 8 Indian languages.
+          </p>
         </div>
 
-        {/* Yellow Hero Train Card */}
-        <div className="train-speed-bg rounded-[28px] p-6 flex items-center justify-center">
-          <svg width="230" height="90" viewBox="0 0 230 90" fill="none" aria-hidden="true">
-            <path d="M12 78L218 52" stroke="white" strokeWidth="3" strokeOpacity="0.8" />
-            <path d="M40 84L222 62" stroke="white" strokeWidth="2.5" strokeOpacity="0.6" />
-            <path
-              d="M32 58C32 41 56 26 90 23L192 14C206 13 215 21 215 33V49C215 56 209 60 201 60H38C34 60 32 59 32 58Z"
-              fill="#FFFFFF"
-              stroke="#0A0A0A"
-              strokeWidth="2.5"
-            />
-            <path d="M36 48H213V55H34L36 48Z" fill="#FFD600" />
-            <path d="M48 37C60 30 77 27 94 26L88 40H43L48 37Z" fill="#0A0A0A" />
-            <rect x="106" y="28" width="22" height="10" rx="2.5" fill="#0A0A0A" />
-            <rect x="135" y="25" width="22" height="10" rx="2.5" fill="#0A0A0A" />
-            <rect x="164" y="22" width="22" height="10" rx="2.5" fill="#0A0A0A" />
-          </svg>
+        {/* All Available Languages Directly on Screen */}
+        <div className="rounded-2xl border border-slate-200 bg-white p-3.5 space-y-2.5 shadow-2xs">
+          <div className="flex items-center justify-between text-xs font-black uppercase tracking-wider text-slate-600">
+            <span className="flex items-center gap-1.5">
+              <Globe className="w-3.5 h-3.5 text-[#0A1E3F]" />
+              <span>Choose Language / भाषा चुनें</span>
+            </span>
+            <span className="text-[11px] font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">
+              8 Languages
+            </span>
+          </div>
+
+          <div className="grid grid-cols-4 gap-2">
+            {LANGUAGES.map((l) => {
+              const active = lang === l.code;
+              return (
+                <button
+                  key={l.code}
+                  type="button"
+                  onClick={() => setLang(l.code)}
+                  className={`py-2 px-1 rounded-xl text-xs font-black text-center transition border cursor-pointer ${
+                    active
+                      ? 'bg-[#0A1E3F] text-amber-400 border-[#0A1E3F] shadow-xs'
+                      : 'bg-slate-50 text-slate-800 border-slate-200 hover:bg-slate-100 hover:border-slate-300'
+                  }`}
+                >
+                  <span className="block truncate">{l.native}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
+        {/* Classic Heritage Train Emblem Card */}
+        <div className="rounded-3xl bg-[#0A1E3F] text-white p-5 shadow-sm border border-slate-900 relative overflow-hidden">
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-2xl bg-amber-400 text-slate-950 flex items-center justify-center shrink-0 shadow-xs">
+              <Train className="w-7 h-7 stroke-[2.2]" />
+            </div>
+            <div>
+              <span className="text-xs font-black uppercase tracking-wider text-amber-400">
+                Official PNR Tracker
+              </span>
+              <h2 className="text-base sm:text-lg font-black text-white leading-snug">
+                Know your seat, platform & chart status instantly.
+              </h2>
+            </div>
+          </div>
+        </div>
+
+        {/* Login Form */}
         <form onSubmit={codeSent ? handleVerify : handleSendCode} className="space-y-3.5">
-          <div className="rounded-[24px] border-2 border-[#0A0A0A] bg-[#F4F3EF] px-5 py-3">
-            <label className="block text-xs font-bold text-[#0A0A0A]/70">
-              Phone Number
+          <div className="rounded-2xl border-2 border-slate-300 bg-white p-3.5 shadow-2xs focus-within:border-[#0A1E3F] transition">
+            <label className="block text-xs font-black uppercase tracking-wider text-slate-500">
+              Mobile Number (For WhatsApp / SMS Alerts)
             </label>
-            <div className="flex items-center gap-2 mt-0.5">
-              <span className="font-extrabold text-[#0A0A0A]">+91</span>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="font-black text-slate-900 text-lg">+91</span>
               <input
                 type="tel"
                 inputMode="numeric"
@@ -69,15 +108,15 @@ export default function S1Login({ onContinue }) {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
                 placeholder="9876543210"
-                className="w-full bg-transparent font-extrabold text-base text-[#0A0A0A] outline-none"
+                className="w-full bg-transparent font-black text-lg text-slate-900 outline-none font-mono"
               />
             </div>
           </div>
 
           {codeSent && (
-            <div className="rounded-[24px] border-2 border-[#0A0A0A] bg-[#F4F3EF] px-5 py-3">
-              <label className="block text-xs font-bold text-[#0A0A0A]/70">
-                OTP Code
+            <div className="rounded-2xl border-2 border-slate-300 bg-white p-3.5 shadow-2xs focus-within:border-[#0A1E3F] transition">
+              <label className="block text-xs font-black uppercase tracking-wider text-slate-500">
+                One-Time Password (OTP)
               </label>
               <input
                 type="text"
@@ -85,9 +124,13 @@ export default function S1Login({ onContinue }) {
                 maxLength={6}
                 value={otp}
                 onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                placeholder="••••••"
-                className="w-full bg-transparent font-extrabold text-base text-[#0A0A0A] tracking-widest outline-none mt-0.5"
+                placeholder="123456"
+                className="w-full bg-transparent font-black text-xl text-slate-900 tracking-widest outline-none font-mono mt-1"
               />
+              <p className="text-xs font-semibold text-emerald-700 mt-1 flex items-center gap-1">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>Demo mode: enter any 4–6 digit code to log in.</span>
+              </p>
             </div>
           )}
 
@@ -96,16 +139,24 @@ export default function S1Login({ onContinue }) {
           </BigButton>
         </form>
 
-        <BigButton variant="secondary" onClick={onContinue}>
-          {t('ui.continue_guest')}
-        </BigButton>
+        {/* Guest Mode Button */}
+        <div className="pt-0.5">
+          <BigButton
+            variant="secondary"
+            onClick={onContinue}
+            icon={ArrowRight}
+          >
+            {t('ui.continue_guest')}
+          </BigButton>
+        </div>
 
-        <p className="text-xs text-[#0A0A0A]/70 flex items-start gap-2 px-1">
-          <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5 text-[#0A0A0A]" />
+        {/* Privacy Note */}
+        <div className="p-3.5 rounded-2xl bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-600 flex items-start gap-2.5">
+          <ShieldCheck className="w-4 h-4 shrink-0 text-emerald-700 mt-0.5" />
           <span>
-            We only store your language, phone number (if logged in), and tracked PNR—deleted 24h after your journey.
+            Privacy guarantee: We only store your language preference and tracked PNR. We never sell your data, and journey records are cleared after completion.
           </span>
-        </p>
+        </div>
       </main>
     </div>
   );

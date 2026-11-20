@@ -26,12 +26,10 @@ function mapPassenger(p) {
   else if (cur.includes("WL")) status = "WL";
 
   if (status === "WL") {
-    // Position format varies by source: try currentBerthNo, then first number in the details string.
     const n = Number(p.currentBerthNo) || Number((String(p.currentStatusDetails).match(/\d+/) || [])[0]);
     wl_position = n || null;
   }
   if (status === "CNF") {
-    // Use the current coach/berth if present, otherwise the original booking seat (only if it was CNF at booking).
     if (p.currentCoachId) { coach = p.currentCoachId; berth = p.currentBerthNo || null; berth_code = p.currentBerthCode || null; }
     else if (book === "CNF" && p.bookingCoachId) { coach = p.bookingCoachId; berth = p.bookingBerthNo || null; berth_code = p.bookingBerthCode || null; }
   }
@@ -46,7 +44,7 @@ function mapPassenger(p) {
 const RANK = { WL: 3, RAC: 2, CNF: 1 };
 
 function normalize(resp) {
-  if (!resp || resp.success !== true || !resp.data) return null; // caller turns this into "badpnr"
+  if (!resp || resp.success !== true || !resp.data) return null;
   const d = resp.data;
   const passengers = (d.passengerList || []).map(mapPassenger);
   const worst = passengers.reduce((a, b) => ((RANK[b.status] || 0) > (RANK[a?.status] || 0) ? b : a), null) || {};
@@ -57,7 +55,7 @@ function normalize(resp) {
     route: {
       from: d.boardingPoint || d.sourceStation || null,
       to: d.reservationUpto || d.destinationStation || null,
-      from_name: d.boardingPoint || d.sourceStation || null, // provider gives codes only
+      from_name: d.boardingPoint || d.sourceStation || null,
       to_name: d.reservationUpto || d.destinationStation || null,
     },
     departure_iso: parseIST(d.dateOfJourney),
@@ -66,8 +64,8 @@ function normalize(resp) {
       coach: worst.coach ?? null, berth: worst.berth ?? null, raw: worst.raw ?? null,
     },
     passengers,
-    platform: { current: null, previous: null },   // not provided by this API
-    delay_minutes: null,                           // not provided by this API
+    platform: { current: null, previous: null },
+    delay_minutes: null,
     train_state: "scheduled",
     chart: { time_iso: null, source: "estimate", prepared: chartPrepared },
     last_updated_iso: new Date().toISOString(),
@@ -75,11 +73,13 @@ function normalize(resp) {
   };
 }
 
-async function getJourney(pnr) {
+async function getJourney(pnr, overrideKey, overrideHost) {
   const hit = cache.get(pnr);
   if (hit && Date.now() - hit.at < CACHE_MS) return { journey: hit.journey };
-  const host = process.env.RAPIDAPI_HOST, key = process.env.RAPIDAPI_KEY;
-  if (!host || !key) throw new Error("RAPIDAPI_KEY / RAPIDAPI_HOST not set");
+  const host = overrideHost || process.env.RAPIDAPI_HOST || "irctc-indian-railway-pnr-status.p.rapidapi.com";
+  const key = overrideKey || process.env.RAPIDAPI_KEY;
+  if (!key) throw new Error("RAPIDAPI_KEY not set");
+
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 8000);
   try {
@@ -90,11 +90,11 @@ async function getJourney(pnr) {
     const body = await r.json();
     if (!r.ok && r.status !== 200) throw new Error(`provider status ${r.status}`);
     const journey = normalize(body);
-    if (!journey) return { journey: null };            // success:false -> bad / flushed PNR
+    if (!journey) return { journey: null };
     cache.set(pnr, { at: Date.now(), journey });
     return { journey };
   } catch (e) {
-    if (hit) return { journey: { ...hit.journey, data_source: "cached" } }; // last good copy
+    if (hit) return { journey: { ...hit.journey, data_source: "cached" } };
     throw e;
   } finally { clearTimeout(timer); }
 }

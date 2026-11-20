@@ -8,10 +8,14 @@
  * 5. Safe visual alert frequency verification (<= 2 flashes per second).
  */
 
-const test = require('node:test');
-const assert = require('node:assert');
-const fs = require('node:fs');
-const path = require('node:path');
+import test from 'node:test';
+import assert from 'node:assert';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const i18nDir = path.resolve(__dirname, '../src/i18n');
 const languages = ['en', 'kn', 'hi', 'ta', 'te', 'ml', 'bn', 'mr'];

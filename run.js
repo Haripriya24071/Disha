@@ -1,6 +1,6 @@
 const assert = require("assert");
 const fx = require("./fixture.json");
-const { normalize, parseIST } = require("../src/rapidapi");
+const { normalize, parseIST } = require("./rapidapi");
 
 assert.strictEqual(parseIST("Dec 23, 2026 9:50:00 PM"), "2026-12-23T21:50:00+05:30");
 assert.strictEqual(parseIST("Dec 24, 2026 12:05:00 AM"), "2026-12-24T00:05:00+05:30");

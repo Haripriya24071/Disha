@@ -1,17 +1,17 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
 @layer base {
   html {
     font-size: 18px;
-    font-family: 'Plus Jakarta Sans', 'Noto Sans', sans-serif;
+    font-family: 'Plus Jakarta Sans', 'Noto Sans', system-ui, -apple-system, sans-serif;
   }
   html.text-large {
     font-size: 22px;
   }
   body {
-    background-color: #F4F3EF;
-    color: #0A0A0A;
+    background-color: #F8FAFC;
+    color: #0F172A;
     margin: 0;
     -webkit-font-smoothing: antialiased;
   }
@@ -22,23 +22,44 @@
   html.high-contrast button,
   html.high-contrast input,
   html.high-contrast .card-surface {
-    background-color: #111111 !important;
+    background-color: #0A0A0A !important;
     color: #FFFFFF !important;
     border: 2px solid #FFFFFF !important;
   }
 }
 
-.train-speed-bg {
-  background-color: #FFD600;
-  background-image: linear-gradient(
-    198deg,
-    transparent 62%,
-    rgba(255, 255, 255, 0.45) 62.3%,
-    rgba(255, 255, 255, 0.45) 63.2%,
-    transparent 63.5%,
-    transparent 66%,
-    rgba(255, 255, 255, 0.35) 66.3%,
-    rgba(255, 255, 255, 0.35) 67%,
-    transparent 67.3%
-  );
+/* Safe visual flash animation strictly <= 2 flashes/sec (1.2s cycle = 0.83 Hz) */
+@keyframes safe-flash {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.animate-safe-flash {
+  animation: safe-flash 1.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-safe-flash {
+    animation: none !important;
+  }
+}
+
+/* Classic Indian Railway styling tokens */
+.railway-gradient {
+  background: linear-gradient(135deg, #0A1E3F 0%, #163668 100%);
+}
+
+.railway-gold {
+  color: #F59E0B;
+}
+
+.card-surface {
+  transition: all 0.2s ease;
 }

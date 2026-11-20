@@ -5,7 +5,13 @@ const subs = new Map();           // pnr -> [{ whatsapp, fcmToken, language }]
 exports.addClient = (pnr, res) => {
   if (!clients.has(pnr)) clients.set(pnr, new Set());
   clients.get(pnr).add(res);
-  res.on("close", () => clients.get(pnr)?.delete(res));
+  res.on("close", () => {
+    const s = clients.get(pnr);
+    if (s) {
+      s.delete(res);
+      if (s.size === 0) clients.delete(pnr);
+    }
+  });
 };
 
 exports.subscribe = (pnr, sub) => {
@@ -13,11 +19,24 @@ exports.subscribe = (pnr, sub) => {
   subs.get(pnr).push(sub);
 };
 
+exports.hasListeners = (pnr) => {
+  const c = clients.get(pnr);
+  const s = subs.get(pnr);
+  return (c && c.size > 0) || (s && s.length > 0);
+};
+
+exports.getTrackedPnrs = () => {
+  const set = new Set([...clients.keys(), ...subs.keys()]);
+  return Array.from(set);
+};
+
 const TEXT = {
-  platform_changed: (d) => `ClearTrack: Platform changed. Your train will now come to Platform ${d.to}.`,
-  delayed: (d) => `ClearTrack: Your train is ${d.minutes} minutes late.`,
-  cancelled: () => "ClearTrack: Your train is cancelled. Open ClearTrack to see other ways to travel.",
-  confirmed: (d) => `ClearTrack: Good news. Your ticket is now confirmed. Coach ${d.coach}, berth ${d.berth}.`,
+  platform_changed: (d) => `Disha: Platform changed. Your train will now come to Platform ${d.to}.`,
+  delayed: (d) => `Disha: Your train is ${d.minutes} minutes late.`,
+  cancelled: () => "Disha: Your train is cancelled. Open Disha to see other ways to travel.",
+  confirmed: (d) => `Disha: Good news. Your ticket is now confirmed. Coach ${d.coach}, berth ${d.berth}.`,
+  wl_moved: (d) => `Disha: Waiting list moved from ${d.from} to ${d.to}.`,
+  chart_prepared: () => "Disha: Reservation chart has been prepared.",
 };
 
 let twilioClient = null;
@@ -33,9 +52,17 @@ function getTwilio() {
 
 exports.notify = async (event) => {
   // 1. SSE
-  for (const res of clients.get(event.pnr) || []) {
-    res.write(`data: ${JSON.stringify(event)}\n\n`);
+  const sseClients = clients.get(event.pnr);
+  if (sseClients) {
+    for (const res of sseClients) {
+      try {
+        res.write(`data: ${JSON.stringify(event)}\n\n`);
+      } catch (err) {
+        console.warn("SSE write error:", err.message);
+      }
+    }
   }
+
   // 2. WhatsApp (only if Twilio is configured)
   const tw = getTwilio();
   const text = TEXT[event.type]?.(event.data || {});
@@ -48,8 +75,15 @@ exports.notify = async (event) => {
           to: `whatsapp:${s.whatsapp}`,
           body: text,
         });
-      } catch (e) { console.error("WhatsApp send failed:", e.message); }
+      } catch (e) {
+        console.error("WhatsApp send failed:", e.message);
+      }
     }
   }
-  // 3. Web push (FCM) is left as a stub: store tokens now, wire firebase-admin later if time allows.
+
+  // 3. Web push (FCM stub)
+  const registeredSubs = subs.get(event.pnr) || [];
+  if (registeredSubs.some(s => s.fcmToken)) {
+    console.log(`[FCM Push] Notification queued for PNR ${event.pnr}: ${event.type}`);
+  }
 };

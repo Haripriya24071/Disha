@@ -12,7 +12,7 @@ const FALLBACK_MOCKS = {
     platform: { current: '3', previous: null },
     delay_minutes: 0,
     train_state: 'scheduled',
-    chart: { time_iso: null, source: 'estimate', prepared: false },
+    chart: { time_iso: new Date(Date.now() + 86400000 - 14400000).toISOString(), source: 'estimate', prepared: false },
     last_updated_iso: new Date().toISOString(),
     data_source: 'mock',
   },
@@ -21,11 +21,11 @@ const FALLBACK_MOCKS = {
     train: { number: '12627', name: 'Karnataka Express', class: 'SL' },
     route: { from: 'SBC', to: 'NDLS', from_name: 'Bengaluru', to_name: 'New Delhi' },
     departure_iso: new Date(Date.now() + 86400000).toISOString(),
-    ticket: { type: 'RAC', wl_position: null, coach: null, berth: null, raw: 'RAC 14' },
+    ticket: { type: 'RAC', wl_position: null, coach: 'S4', berth: 'RAC 14', raw: 'RAC 14' },
     platform: { current: '1', previous: null },
     delay_minutes: 0,
     train_state: 'scheduled',
-    chart: { time_iso: null, source: 'estimate', prepared: false },
+    chart: { time_iso: new Date(Date.now() + 86400000 - 14400000).toISOString(), source: 'estimate', prepared: false },
     last_updated_iso: new Date().toISOString(),
     data_source: 'mock',
   },
@@ -34,11 +34,11 @@ const FALLBACK_MOCKS = {
     train: { number: '12007', name: 'Shatabdi Express', class: 'CC' },
     route: { from: 'MAS', to: 'SBC', from_name: 'Chennai', to_name: 'Bengaluru' },
     departure_iso: new Date(Date.now() + 86400000).toISOString(),
-    ticket: { type: 'CNF', wl_position: null, coach: 'S4', berth: '32', raw: 'CNF/S4/32/LB' },
+    ticket: { type: 'CNF', wl_position: null, coach: 'B2', berth: '32', raw: 'CNF/B2/32/LB' },
     platform: { current: '4', previous: null },
     delay_minutes: 0,
     train_state: 'scheduled',
-    chart: { time_iso: null, source: 'estimate', prepared: false },
+    chart: { time_iso: new Date(Date.now() + 86400000 - 14400000).toISOString(), source: 'estimate', prepared: false },
     last_updated_iso: new Date().toISOString(),
     data_source: 'mock',
   },
@@ -51,7 +51,7 @@ const FALLBACK_MOCKS = {
     platform: { current: null, previous: null },
     delay_minutes: 0,
     train_state: 'cancelled',
-    chart: { time_iso: null, source: 'estimate', prepared: false },
+    chart: { time_iso: new Date(Date.now() + 86400000 - 14400000).toISOString(), source: 'estimate', prepared: false },
     last_updated_iso: new Date().toISOString(),
     data_source: 'mock',
   },
@@ -73,22 +73,22 @@ export function useJourney() {
     setStatus('loading');
     setErrorCode(null);
 
-    try {
-      if (!API_BASE && FALLBACK_MOCKS[pnr]) {
-        const mockData = { ...FALLBACK_MOCKS[pnr], last_updated_iso: new Date().toISOString() };
-        localStorage.setItem(`journey_${pnr}`, JSON.stringify(mockData));
-        localStorage.setItem('last_pnr', pnr);
-        setJourney(mockData);
-        setStatus('ok');
-        return;
-      }
+    const customKey = localStorage.getItem('rapidapi_key') || '';
+    const headers = {};
+    if (customKey) {
+      headers['x-rapidapi-key'] = customKey;
+    }
 
-      const res = await fetch(`${API_BASE}/api/journey/${pnr}`);
+    try {
+      const endpoint = API_BASE ? `${API_BASE}/api/journey/${pnr}` : `/api/journey/${pnr}`;
+      const res = await fetch(endpoint, { headers });
+
       if (res.status === 400 || res.status === 404) {
         setStatus('error');
         setErrorCode('badpnr');
         return;
       }
+
       if (!res.ok) throw new Error('API failure');
 
       const data = await res.json();
@@ -97,8 +97,11 @@ export function useJourney() {
       setJourney(data);
       setStatus('ok');
     } catch {
+      // Offline or network error fallback
       if (FALLBACK_MOCKS[pnr]) {
         const mockData = { ...FALLBACK_MOCKS[pnr], last_updated_iso: new Date().toISOString() };
+        localStorage.setItem(`journey_${pnr}`, JSON.stringify(mockData));
+        localStorage.setItem('last_pnr', pnr);
         setJourney(mockData);
         setStatus('ok');
         return;
