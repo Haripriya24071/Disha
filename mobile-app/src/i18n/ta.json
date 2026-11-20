@@ -83,5 +83,18 @@
   "lang.te": "తెలుగు",
   "lang.ml": "മലയാളം",
   "lang.bn": "বাংলা",
-  "lang.mr": "मराठी"
+  "lang.mr": "मराठी",
+  "ui.railway_guide": "இந்திய ரயில்வே வழிகாட்டி",
+  "ui.pnr_subtitle": "உங்கள் சொந்த மொழியில் நேரடி நிலவரங்களை அறிய உங்கள் 10 இலக்க டிக்கெட் எண்ணை உள்ளிடவும்.",
+  "ui.quick_scenarios": "விரைவு சோதனை மாதிரிகள்",
+  "ui.pnr_label": "10 இலக்க PNR எண்",
+  "ui.clear": "அழி",
+  "ui.error_label": "பிழை",
+  "ui.badge_pnr_status": "இந்திய ரயில்வே PNR நிலை",
+  "ui.scenarios_wl": "காத்திருப்புப் பட்டியல்",
+  "ui.scenarios_rac": "அமர்வதற்கான இருக்கை",
+  "ui.scenarios_cnf": "உறுதிசெய்யப்பட்டது",
+  "ui.scenarios_cancelled": "ரத்துசெய்யப்பட்ட ரயில்",
+  "ui.languages_label": "மொழிகள்",
+  "ui.live_connected": "நேரடி இணைப்பு"
 }

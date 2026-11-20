@@ -83,6 +83,18 @@
   "lang.te": "తెలుగు",
   "lang.ml": "മലയാളം",
   "lang.bn": "বাংলা",
-  "lang.mr": "मराठी"
+  "lang.mr": "मराठी",
+  "ui.railway_guide": "भारतीय रेल मार्गदर्शिका",
+  "ui.pnr_subtitle": "अपनी भाषा में सरल अपडेट पाने के लिए अपना 10 अंकों का टिकट नंबर दर्ज करें।",
+  "ui.quick_scenarios": "त्वरित परीक्षण परिदृश्य",
+  "ui.pnr_label": "10 अंकों का PNR नंबर",
+  "ui.clear": "साफ़ करें",
+  "ui.error_label": "त्रुटि",
+  "ui.badge_pnr_status": "भारतीय रेल PNR स्थिति",
+  "ui.scenarios_wl": "प्रतीक्षा सूची",
+  "ui.scenarios_rac": "बैठने की सीट",
+  "ui.scenarios_cnf": "पुष्टीकृत (कन्फर्म)",
+  "ui.scenarios_cancelled": "रद्द की गई ट्रेन",
+  "ui.languages_label": "भाषाएँ",
+  "ui.live_connected": "लाइव कनेक्टेड"
 }
-

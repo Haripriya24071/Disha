@@ -83,6 +83,18 @@
   "lang.te": "తెలుగు",
   "lang.ml": "മലയാളം",
   "lang.bn": "বাংলা",
-  "lang.mr": "मराठी"
+  "lang.mr": "मराठी",
+  "ui.railway_guide": "ಭಾರತೀಯ ರೈಲ್ವೆ ಮಾರ್ಗದರ್ಶಿ",
+  "ui.pnr_subtitle": "ನಿಮ್ಮ ಸ್ವಂತ ಭಾಷೆಯಲ್ಲಿ ಸ್ಪಷ್ಟ ನವೀಕರಣಗಳನ್ನು ಪಡೆಯಲು ನಿಮ್ಮ 10 ಅಂಕಿಗಳ ಟಿಕೆಟ್ ಸಂಖ್ಯೆಯನ್ನು ನಮೂದಿಸಿ.",
+  "ui.quick_scenarios": "ತ್ವರಿತ ಪರೀಕ್ಷಾ ಮಾದರಿಗಳು",
+  "ui.pnr_label": "10 ಅಂಕಿಗಳ PNR ಸಂಖ್ಯೆ",
+  "ui.clear": "ಅಳಿಸಿ",
+  "ui.error_label": "ದೋಷ",
+  "ui.badge_pnr_status": "ಭಾರತೀಯ ರೈಲ್ವೆ PNR ಸ್ಥಿತಿ",
+  "ui.scenarios_wl": "ಕಾಯುವ ಪಟ್ಟಿ",
+  "ui.scenarios_rac": "ಕುಳಿತುಕೊಳ್ಳುವ ಸೀಟು",
+  "ui.scenarios_cnf": "ಖಚಿತಗೊಂಡಿದೆ",
+  "ui.scenarios_cancelled": "ರದ್ದುಗೊಂಡ ರೈಲು",
+  "ui.languages_label": "ಭಾಷೆಗಳು",
+  "ui.live_connected": "ಲೈವ್ ಸಂಪರ್ಕಗೊಂಡಿದೆ"
 }
-

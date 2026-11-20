@@ -83,5 +83,18 @@
   "lang.te": "తెలుగు",
   "lang.ml": "മലയാളം",
   "lang.bn": "বাংলা",
-  "lang.mr": "मराठी"
+  "lang.mr": "मराठी",
+  "ui.railway_guide": "ভারতীয় রেল নির্দেশিকা",
+  "ui.pnr_subtitle": "আপনার নিজের ভাষায় তথ্য পেতে আপনার ১০ সংখ্যার টিকিট নম্বর লিখুন।",
+  "ui.quick_scenarios": "দ্রুত পরীক্ষা দৃশ্যপট",
+  "ui.pnr_label": "১০ সংখ্যার PNR নম্বর",
+  "ui.clear": "মুছুন",
+  "ui.error_label": "ত্রুটি",
+  "ui.badge_pnr_status": "ভারতীয় রেল PNR স্ট্যাটাস",
+  "ui.scenarios_wl": "অপেক্ষমান তালিকা",
+  "ui.scenarios_rac": "বসার আসন",
+  "ui.scenarios_cnf": "নিশ্চিত",
+  "ui.scenarios_cancelled": "বাতিল ট্রেন",
+  "ui.languages_label": "ভাষা",
+  "ui.live_connected": "লাইভ সংযুক্ত"
 }

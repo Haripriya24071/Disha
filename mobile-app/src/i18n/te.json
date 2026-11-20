@@ -83,5 +83,18 @@
   "lang.te": "తెలుగు",
   "lang.ml": "മലയാളം",
   "lang.bn": "বাংলা",
-  "lang.mr": "मराठी"
+  "lang.mr": "मराठी",
+  "ui.railway_guide": "భారతీయ రైల్వే గైడ్",
+  "ui.pnr_subtitle": "మీ స్వంత భాషలో సులభమైన సమాచారం కోసం మీ 10 అంకెల టిక్కెట్ నంబర్‌ను నమోదు చేయండి.",
+  "ui.quick_scenarios": "త్వరిత పరీక్షా దృశ్యాలు",
+  "ui.pnr_label": "10 అంకెల PNR సంఖ్య",
+  "ui.clear": "తుడిచివేయి",
+  "ui.error_label": "లోపం",
+  "ui.badge_pnr_status": "భారతీయ రైల్వే PNR స్థితి",
+  "ui.scenarios_wl": "వెయిటింగ్ లిస్ట్",
+  "ui.scenarios_rac": "కూర్చునే సీటు",
+  "ui.scenarios_cnf": "ధృవీకరించబడింది",
+  "ui.scenarios_cancelled": "రద్దైన రైలు",
+  "ui.languages_label": "భాషలు",
+  "ui.live_connected": "లైవ్ కనెక్ట్ చేయబడింది"
 }

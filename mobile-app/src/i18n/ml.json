@@ -83,5 +83,18 @@
   "lang.te": "తెలుగు",
   "lang.ml": "മലയാളം",
   "lang.bn": "বাংলা",
-  "lang.mr": "मराठी"
+  "lang.mr": "मराठी",
+  "ui.railway_guide": "ഇന്ത്യൻ റെയിൽവേ ഗൈഡ്",
+  "ui.pnr_subtitle": "ലളിതമായ വിവരങ്ങൾ അറിയാൻ നിങ്ങളുടെ 10 അക്ക ടിക്കറ്റ് നമ്പർ നൽകുക.",
+  "ui.quick_scenarios": "ദ്രുത പരിശോധനാ സാഹചര്യങ്ങൾ",
+  "ui.pnr_label": "10 അക്ക PNR നമ്പർ",
+  "ui.clear": "മായ്ക്കുക",
+  "ui.error_label": "പിശക്",
+  "ui.badge_pnr_status": "ഇന്ത്യൻ റെയിൽവേ PNR നില",
+  "ui.scenarios_wl": "വെയ്റ്റിംഗ് ലിസ്റ്റ്",
+  "ui.scenarios_rac": "ഇരിക്കാനുള്ള സീറ്റ്",
+  "ui.scenarios_cnf": "ഉറപ്പിച്ചു",
+  "ui.scenarios_cancelled": "റദ്ദാക്കിയ ട്രെയിൻ",
+  "ui.languages_label": "ഭാഷകൾ",
+  "ui.live_connected": "തത്സമയ കണക്ഷൻ"
 }

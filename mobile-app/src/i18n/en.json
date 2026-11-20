@@ -83,6 +83,18 @@
   "lang.te": "తెలుగు",
   "lang.ml": "മലയാളം",
   "lang.bn": "বাংলা",
-  "lang.mr": "मराठी"
+  "lang.mr": "मराठी",
+  "ui.railway_guide": "Indian Railways Guide",
+  "ui.pnr_subtitle": "Enter your 10-digit ticket number to get plain-language updates in your own language.",
+  "ui.quick_scenarios": "Quick Test Scenarios",
+  "ui.pnr_label": "10-Digit PNR Number",
+  "ui.clear": "Clear",
+  "ui.error_label": "Error",
+  "ui.badge_pnr_status": "Indian Railways PNR Status",
+  "ui.scenarios_wl": "Waiting List",
+  "ui.scenarios_rac": "Sitting Seat",
+  "ui.scenarios_cnf": "Confirmed",
+  "ui.scenarios_cancelled": "Cancelled Train",
+  "ui.languages_label": "Languages",
+  "ui.live_connected": "Live Connected"
 }
-

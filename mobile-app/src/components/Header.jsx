@@ -31,7 +31,7 @@ export default function Header({ title, onBack, rightElement }) {
               </span>
               {!title && (
                 <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                  Indian Railways Guide
+                  {t('ui.railway_guide') || 'Indian Railways Guide'}
                 </span>
               )}
             </div>

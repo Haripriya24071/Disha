@@ -4,7 +4,7 @@ import { useT } from '../i18n/useT';
 import Header from '../components/Header';
 import BigButton from '../components/BigButton';
 
-const API_BASE = import.meta.env.VITE_API_URL || '';
+const API_BASE = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_URL) || '';
 
 const FALLBACK_BACKUP = {
   trains: [

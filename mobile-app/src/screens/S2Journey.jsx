@@ -13,11 +13,14 @@ import {
   Search,
   Radio,
   Zap,
-  CheckCircle,
+  CheckCircle2,
   AlertTriangle,
   Clock,
   Sparkles,
-  Globe
+  Globe,
+  Train,
+  Check,
+  X
 } from 'lucide-react';
 import { useT, LANGUAGES } from '../i18n/useT';
 import { useSpeech } from '../hooks/useSpeech';
@@ -36,13 +39,6 @@ function minutesAgo(iso) {
   return mins === 0 ? 'just now' : `${mins} min ago`;
 }
 
-const TEST_PNRS = [
-  { pnr: '1111111111', label: 'WL 8', desc: 'Waiting List' },
-  { pnr: '2222222222', label: 'RAC', desc: 'Sitting Seat' },
-  { pnr: '3333333333', label: 'CNF S4/32', desc: 'Confirmed' },
-  { pnr: '4444444444', label: 'Cancelled', desc: 'Cancelled Train' },
-];
-
 export default function S2Journey({ journeyState, onOpenBackup, sseConnected }) {
   const { t, lang, setLang } = useT();
   const { speak, speaking, cancel, voiceUnavailable } = useSpeech();
@@ -53,6 +49,13 @@ export default function S2Journey({ journeyState, onOpenBackup, sseConnected }) 
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [triggeringEvent, setTriggeringEvent] = useState(null);
   const [showSimulator, setShowSimulator] = useState(false);
+
+  const testScenarios = [
+    { pnr: '1111111111', label: 'WL 8', desc: t('ui.scenarios_wl') || 'Waiting List', badge: 'bg-amber-100 text-amber-900 border-amber-300' },
+    { pnr: '2222222222', label: 'RAC', desc: t('ui.scenarios_rac') || 'Sitting Seat', badge: 'bg-blue-100 text-blue-900 border-blue-300' },
+    { pnr: '3333333333', label: 'CNF S4/32', desc: t('ui.scenarios_cnf') || 'Confirmed', badge: 'bg-emerald-100 text-emerald-900 border-emerald-300' },
+    { pnr: '4444444444', label: 'Cancelled', desc: t('ui.scenarios_cancelled') || 'Cancelled Train', badge: 'bg-red-100 text-red-900 border-red-300' },
+  ];
 
   const openTerm = (id) => {
     setTermId(id);
@@ -128,15 +131,17 @@ export default function S2Journey({ journeyState, onOpenBackup, sseConnected }) 
     return stripRich(`${main} ${decide} ${plat}`);
   };
 
+  const isTenDigits = pnrInput.replace(/\D/g, '').length === 10;
+
   return (
     <div className="min-h-screen flex flex-col bg-[#F8FAFC]">
       <Header
         onBack={status === 'ok' ? reset : undefined}
         rightElement={
           status === 'ok' && (
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200 text-xs font-bold text-slate-700">
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-xs font-bold text-slate-700">
               <span className={`w-2 h-2 rounded-full ${sseConnected ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
-              <span className="hidden sm:inline">{sseConnected ? 'Live' : 'Polling'}</span>
+              <span className="hidden sm:inline">{sseConnected ? (t('ui.live_connected') || 'Live') : 'Polling'}</span>
             </div>
           )
         }
@@ -147,7 +152,7 @@ export default function S2Journey({ journeyState, onOpenBackup, sseConnected }) 
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
           <span className="text-[11px] font-black uppercase text-slate-500 shrink-0 flex items-center gap-1 mr-1">
             <Globe className="w-3.5 h-3.5 text-[#0A1E3F]" />
-            <span>Languages:</span>
+            <span>{t('ui.languages_label') || 'Languages'}:</span>
           </span>
           <div className="flex items-center gap-1.5">
             {LANGUAGES.map((l) => {
@@ -169,38 +174,44 @@ export default function S2Journey({ journeyState, onOpenBackup, sseConnected }) 
             })}
           </div>
         </div>
+
         {status !== 'ok' ? (
           /* STATE A: PNR Input Screen */
-          <div className="space-y-6 pt-2">
+          <div className="space-y-6 pt-1">
+            {/* Indian Railways Heading */}
             <div>
-              <span className="inline-block bg-amber-400 text-slate-950 px-3 py-1 font-black text-xs uppercase tracking-wider rounded-md mb-2">
-                Indian Railways PNR Status
+              <span className="inline-block bg-amber-400 text-slate-950 px-3 py-1 font-black text-xs uppercase tracking-wider rounded-md mb-2 shadow-2xs">
+                {t('ui.badge_pnr_status') || 'Indian Railways PNR Status'}
               </span>
               <h1 className="text-2xl sm:text-3xl font-black leading-tight tracking-tight text-[#0A1E3F]">
                 {t('ui.enter_pnr')}
               </h1>
               <p className="text-sm font-semibold text-slate-600 mt-1">
-                Enter your 10-digit ticket number to get plain-language updates in your own language.
+                {t('ui.pnr_subtitle') || 'Enter your 10-digit ticket number to get plain-language updates in your own language.'}
               </p>
             </div>
 
             {/* Quick Test PNR Selector Chips */}
             <div className="space-y-2">
-              <span className="text-xs font-black uppercase tracking-wider text-slate-500">
-                Quick Test Scenarios
+              <span className="text-xs font-black uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                <span>{t('ui.quick_scenarios') || 'Quick Test Scenarios'}</span>
               </span>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                {TEST_PNRS.map((item) => (
+                {testScenarios.map((item) => (
                   <button
                     key={item.pnr}
                     type="button"
                     onClick={() => handleQuickPnr(item.pnr)}
-                    className="p-2.5 rounded-xl border border-slate-300 bg-white hover:bg-amber-50 hover:border-amber-400 text-left transition shadow-2xs group cursor-pointer"
+                    className="p-3 rounded-2xl border border-slate-200 bg-white hover:border-amber-400 hover:bg-amber-50/50 text-left transition shadow-2xs group cursor-pointer"
                   >
-                    <span className="block font-black text-xs text-slate-900 group-hover:text-amber-800">
-                      {item.label}
-                    </span>
-                    <span className="block text-[11px] font-semibold text-slate-500 truncate">
+                    <div className="flex items-center justify-between">
+                      <span className="font-black text-xs text-slate-900 group-hover:text-amber-900">
+                        {item.label}
+                      </span>
+                      <span className={`w-2 h-2 rounded-full ${item.pnr === '3333333333' ? 'bg-emerald-500' : item.pnr === '4444444444' ? 'bg-red-500' : 'bg-amber-400'}`} />
+                    </div>
+                    <span className="block text-[11px] font-semibold text-slate-500 truncate mt-1">
                       {item.desc}
                     </span>
                   </button>
@@ -208,30 +219,45 @@ export default function S2Journey({ journeyState, onOpenBackup, sseConnected }) 
               </div>
             </div>
 
-            {/* Search Input Box */}
+            {/* Classic Indian Railways Boarding Pass Ticket Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="rounded-2xl border-2 border-slate-300 bg-white p-4 shadow-sm focus-within:border-[#0A1E3F] transition">
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-500">
-                  10-Digit PNR Number
-                </label>
-                <div className="flex items-center gap-3 mt-1.5">
+              <div className="rounded-3xl border-2 border-[#0A1E3F] bg-white shadow-md overflow-hidden">
+                {/* Golden Railway Ticket Top Bar */}
+                <div className="bg-[#0A1E3F] px-5 py-3 text-white flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Train className="w-4 h-4 text-amber-400" />
+                    <span className="text-xs font-black uppercase tracking-wider text-amber-400">
+                      {t('ui.pnr_label') || '10-Digit PNR Number'}
+                    </span>
+                  </div>
+                  <span className={`text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1 ${
+                    isTenDigits ? 'bg-emerald-500 text-white' : 'bg-slate-800 text-slate-300'
+                  }`}>
+                    {isTenDigits && <Check className="w-3 h-3 stroke-[3]" />}
+                    <span>{pnrInput.length} / 10 Digits</span>
+                  </span>
+                </div>
+
+                {/* Input Field */}
+                <div className="p-4 sm:p-5 flex items-center justify-between gap-3">
                   <input
                     type="text"
                     inputMode="numeric"
                     maxLength={10}
                     value={pnrInput}
                     onChange={(e) => setPnrInput(e.target.value.replace(/\D/g, ''))}
-                    placeholder="e.g. 1111111111"
+                    placeholder="e.g. 4801952313"
                     aria-label={t('ui.enter_pnr')}
-                    className="w-full bg-transparent text-2xl font-black tracking-widest text-[#0A1E3F] outline-none font-mono"
+                    className="w-full bg-transparent text-2xl sm:text-3xl font-black tracking-widest text-[#0A1E3F] outline-none font-mono placeholder:text-slate-300"
                   />
                   {pnrInput && (
                     <button
                       type="button"
                       onClick={() => setPnrInput('')}
-                      className="text-xs font-bold text-slate-400 hover:text-slate-600 px-2 py-1"
+                      className="px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition flex items-center gap-1 shrink-0 cursor-pointer"
                     >
-                      Clear
+                      <X className="w-3.5 h-3.5" />
+                      <span>{t('ui.clear') || 'Clear'}</span>
                     </button>
                   )}
                 </div>
@@ -240,11 +266,11 @@ export default function S2Journey({ journeyState, onOpenBackup, sseConnected }) 
               {errorCode && (
                 <div
                   role="alert"
-                  className="p-4 rounded-2xl bg-red-50 text-red-900 border-2 border-red-300 font-bold text-sm flex items-start gap-3 shadow-xs"
+                  className="p-4 rounded-2xl bg-red-50 text-red-900 border-2 border-red-300 font-bold text-sm flex items-start gap-3 shadow-xs animate-shake"
                 >
                   <AlertTriangle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
                   <div>
-                    <span className="font-black block">Error</span>
+                    <span className="font-black block">{t('ui.error_label') || 'Error'}</span>
                     <span>{t(`error.${errorCode}`) || 'Ticket not found or network down.'}</span>
                   </div>
                 </div>
@@ -260,7 +286,7 @@ export default function S2Journey({ journeyState, onOpenBackup, sseConnected }) 
               </BigButton>
             </form>
 
-            <div className="pt-2 flex items-center justify-between">
+            <div className="pt-1 flex items-center justify-between">
               <button
                 type="button"
                 onClick={() => openTerm('pnr')}
@@ -287,7 +313,7 @@ export default function S2Journey({ journeyState, onOpenBackup, sseConnected }) 
             <div className="flex items-center justify-between gap-2 overflow-x-auto pb-1 no-scrollbar">
               <span className="text-[11px] font-black uppercase text-slate-500 shrink-0">Switch:</span>
               <div className="flex items-center gap-1.5">
-                {TEST_PNRS.map((item) => {
+                {testScenarios.map((item) => {
                   const active = journey?.pnr === item.pnr;
                   return (
                     <button
