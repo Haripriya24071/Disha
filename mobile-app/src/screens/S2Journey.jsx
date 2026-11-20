@@ -10,6 +10,8 @@ import {
   PhoneCall,
   HelpCircle,
   Search,
+  LogOut,
+  Zap,
 } from 'lucide-react';
 import { useT } from '../i18n/useT';
 import { useSpeech } from '../hooks/useSpeech';
@@ -22,13 +24,20 @@ import Accessibility from '../sheets/Accessibility';
 import ShareSheet from '../sheets/Share';
 import AlertsSheet from '../sheets/Alerts';
 
+const SAMPLE_PNRS = [
+  { pnr: '1111111111', label: 'WL 8' },
+  { pnr: '2222222222', label: 'RAC' },
+  { pnr: '3333333333', label: 'CNF' },
+  { pnr: '4444444444', label: 'Cancelled' },
+];
+
 function minutesAgo(iso) {
   if (!iso) return '2 min ago';
   const mins = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60000));
   return mins === 0 ? 'just now' : `${mins} min ago`;
 }
 
-export default function S2Journey({ journeyState, onOpenBackup }) {
+export default function S2Journey({ journeyState, user, onLogout, onOpenBackup, onTriggerDemoAlert }) {
   const { t } = useT();
   const { speak, speaking, voiceUnavailable } = useSpeech();
   const { status, journey, errorCode, fetchJourney, reset } = journeyState;
@@ -44,6 +53,11 @@ export default function S2Journey({ journeyState, onOpenBackup }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     fetchJourney(pnrInput);
+  };
+
+  const handleSamplePick = (samplePnr) => {
+    setPnrInput(samplePnr);
+    fetchJourney(samplePnr);
   };
 
   const buildSpokenSummary = () => {
@@ -71,18 +85,39 @@ export default function S2Journey({ journeyState, onOpenBackup }) {
       <Header onBack={status === 'ok' ? reset : undefined} />
 
       <main className="flex-1 max-w-md w-full mx-auto px-5 pt-2 pb-8 space-y-4">
+        {/* Logged-in / Guest Status Bar */}
+        <div className="flex items-center justify-between text-xs font-bold text-[#0A0A0A]/75 px-1">
+          <span>
+            {user?.phone ? `Signed in: ${user.phone}` : 'Guest mode'}
+          </span>
+          <button
+            type="button"
+            onClick={onLogout}
+            className="inline-flex items-center gap-1 underline font-extrabold text-[#0A0A0A]"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            <span>{user?.phone ? 'Log out' : 'Log in'}</span>
+          </button>
+        </div>
+
         {status !== 'ok' ? (
-          <div className="space-y-5 pt-2">
+          <div className="space-y-5 pt-1">
             <h1 className="text-[1.75rem] font-extrabold leading-[1.15] tracking-[-0.03em]">
               {t('ui.enter_pnr')}
             </h1>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="rounded-[24px] border-2 border-[#0A0A0A] bg-white px-5 py-3.5">
-                <label className="block text-xs font-bold text-[#0A0A0A]/65">
-                  10-Digit PNR Number
-                </label>
+                <div className="flex items-center justify-between">
+                  <label htmlFor="pnr-input" className="block text-xs font-bold text-[#0A0A0A]/65">
+                    10-Digit PNR Number
+                  </label>
+                  <span className="text-xs font-extrabold text-[#0A0A0A]/60">
+                    {pnrInput.length}/10
+                  </span>
+                </div>
                 <input
+                  id="pnr-input"
                   type="text"
                   inputMode="numeric"
                   maxLength={10}
@@ -90,7 +125,7 @@ export default function S2Journey({ journeyState, onOpenBackup }) {
                   onChange={(e) => setPnrInput(e.target.value.replace(/\D/g, ''))}
                   placeholder="1111111111"
                   aria-label={t('ui.enter_pnr')}
-                  className="w-full bg-transparent text-[1.4rem] font-extrabold tracking-widest text-[#0A0A0A] outline-none mt-1"
+                  className="w-full bg-transparent text-[1.45rem] font-extrabold tracking-widest text-[#0A0A0A] outline-none mt-1"
                 />
               </div>
 
@@ -104,9 +139,28 @@ export default function S2Journey({ journeyState, onOpenBackup }) {
               )}
 
               <BigButton type="submit" icon={Search} variant="primary" disabled={status === 'loading'}>
-                {status === 'loading' ? '...' : t('ui.check_ticket')}
+                {status === 'loading' ? 'Checking...' : t('ui.check_ticket')}
               </BigButton>
             </form>
+
+            {/* Quick Tap Sample PNRs */}
+            <div className="space-y-2 pt-1">
+              <p className="text-xs font-extrabold uppercase tracking-[0.06em] text-[#0A0A0A]/65">
+                Try sample tickets
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {SAMPLE_PNRS.map((item) => (
+                  <button
+                    key={item.pnr}
+                    type="button"
+                    onClick={() => handleSamplePick(item.pnr)}
+                    className="min-h-[44px] px-3.5 py-1.5 rounded-full border-2 border-[#0A0A0A] bg-white hover:bg-[#FFD600] text-xs font-extrabold transition"
+                  >
+                    {item.pnr} · {item.label}
+                  </button>
+                ))}
+              </div>
+            </div>
 
             <button
               type="button"
@@ -125,10 +179,8 @@ export default function S2Journey({ journeyState, onOpenBackup }) {
               </div>
             )}
 
-            {/* Yellow Hero Status Card */}
             <StatusCard journey={journey} onOpenTerm={openTerm} />
 
-            {/* Side-by-side Listen & Refresh Pill Buttons */}
             <div className="grid grid-cols-2 gap-3 pt-1">
               <BigButton
                 icon={Volume2}
@@ -153,12 +205,10 @@ export default function S2Journey({ journeyState, onOpenBackup }) {
               </p>
             )}
 
-            {/* Solid Black Primary Pill Button */}
             <BigButton icon={Compass} variant="primary" onClick={onOpenBackup}>
               {t('ui.backup_plan')}
             </BigButton>
 
-            {/* Stacked Outlined Pill Buttons */}
             <BigButton
               icon={Users}
               variant="secondary"
@@ -175,7 +225,6 @@ export default function S2Journey({ journeyState, onOpenBackup }) {
               {t('ui.alerts')}
             </BigButton>
 
-            {/* Secondary Utilities (Glossary, Settings, Call 139) */}
             <div className="grid grid-cols-2 gap-3 pt-1">
               <button
                 type="button"
@@ -199,6 +248,20 @@ export default function S2Journey({ journeyState, onOpenBackup }) {
               </button>
             </div>
 
+            {/* Demo trigger to preview S4 Platform Change Alert */}
+            {onTriggerDemoAlert && (
+              <div className="pt-1">
+                <button
+                  type="button"
+                  onClick={onTriggerDemoAlert}
+                  className="w-full min-h-[44px] px-4 rounded-full bg-[#FFD600]/60 border border-dashed border-[#0A0A0A] text-xs font-extrabold flex items-center justify-center gap-1.5 hover:bg-[#FFD600]"
+                >
+                  <Zap className="w-3.5 h-3.5" />
+                  <span>Simulate Platform Change Alert (S4)</span>
+                </button>
+              </div>
+            )}
+
             <div className="text-center pt-1">
               <a
                 href="tel:139"
@@ -209,7 +272,6 @@ export default function S2Journey({ journeyState, onOpenBackup }) {
               </a>
             </div>
 
-            {/* Trust Footer */}
             <p className="text-[0.78rem] leading-snug text-[#0A0A0A]/70 text-center px-4">
               {t('trust.note', { ago: minutesAgo(journey?.last_updated_iso) })}
             </p>

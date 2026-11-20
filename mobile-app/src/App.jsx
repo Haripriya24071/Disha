@@ -8,7 +8,14 @@ import S3Backup from './screens/S3Backup';
 import S4Alert from './screens/S4Alert';
 
 function ClearTrackApp() {
-  const [screen, setScreen] = useState('S1');
+  const [user, setUser] = useState(() => {
+    const mode = localStorage.getItem('auth_mode');
+    const phone = localStorage.getItem('user_phone');
+    if (mode === 'logged_in' && phone) return { phone, guest: false };
+    if (mode === 'guest') return { phone: null, guest: true };
+    return null;
+  });
+  const [screen, setScreen] = useState(() => (localStorage.getItem('auth_mode') ? 'S2' : 'S1'));
   const [alertEvent, setAlertEvent] = useState(null);
   const journeyState = useJourney();
 
@@ -28,6 +35,38 @@ function ClearTrackApp() {
     onSilentUpdate: handleSilentUpdate,
   });
 
+  const handleLoginComplete = (sessionUser) => {
+    setUser(sessionUser);
+    setScreen('S2');
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('auth_mode');
+    localStorage.removeItem('user_phone');
+    setUser(null);
+    journeyState.reset();
+    setScreen('S1');
+  };
+
+  const triggerDemoPlatformChange = () => {
+    if (!journeyState.journey) return;
+    const prevPlat = journeyState.journey.platform?.current || '3';
+    const nextPlat = prevPlat === '6' ? '3' : '6';
+    const updated = {
+      ...journeyState.journey,
+      platform: { current: nextPlat, previous: prevPlat },
+      last_updated_iso: new Date().toISOString(),
+    };
+    journeyState.setJourney(updated);
+    setAlertEvent({
+      pnr: updated.pnr,
+      type: 'platform_changed',
+      data: { from: prevPlat, to: nextPlat },
+      timestamp_iso: new Date().toISOString(),
+      journey: updated,
+    });
+  };
+
   if (alertEvent) {
     return (
       <S4Alert
@@ -42,7 +81,7 @@ function ClearTrackApp() {
   }
 
   if (screen === 'S1') {
-    return <S1Login onContinue={() => setScreen('S2')} />;
+    return <S1Login onContinue={handleLoginComplete} />;
   }
 
   if (screen === 'S3') {
@@ -57,7 +96,10 @@ function ClearTrackApp() {
   return (
     <S2Journey
       journeyState={journeyState}
+      user={user}
+      onLogout={handleLogout}
       onOpenBackup={() => setScreen('S3')}
+      onTriggerDemoAlert={triggerDemoPlatformChange}
     />
   );
 }
