@@ -1,220 +1,158 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { Train, Bus, ExternalLink, CheckCircle2, Clock, HelpCircle } from 'lucide-react';
+import { useT } from '../i18n/useT';
+import Header from '../components/Header';
+import BigButton from '../components/BigButton';
 
-/**
- * S3Backup Screen — Haripriya
- * Provides low-stress alternative travel options (trains and buses)
- * if a ticket is stuck on the waiting list.
- * 
- * Rules:
- * - One primary "I will wait for the final list" button (no countdown, no pressure)
- * - Availability indicated by word AND icon (✔ Available / ⏳ Waiting / ? Unknown)
- * - External booking links open safely in a new tab (target="_blank" rel="noopener")
- */
-export function S3Backup({ journey, onBack, t, lang, LangDropdownComponent, HeaderComponent }) {
-  // Use passed data or §10.3 standard backup options
-  const routeFrom = journey?.route?.from_name || journey?.route?.from || 'Bengaluru';
-  const routeTo = journey?.route?.to_name || journey?.route?.to || 'Chennai';
+const API_BASE = import.meta.env.VITE_API_URL || '';
 
-  const trains = [
+const FALLBACK_BACKUP = {
+  trains: [
     {
       number: '12627',
       name: 'Karnataka Express',
       departs: '21:20',
       arrives: '05:10',
       availability: 'Available',
-      book_url: 'https://www.irctc.co.in/'
+      book_url: 'https://www.irctc.co.in/',
     },
     {
-      number: '12608',
-      name: 'Lalbagh Express',
-      departs: '06:20',
-      arrives: '12:15',
+      number: '16526',
+      name: 'Island Express',
+      departs: '20:15',
+      arrives: '06:45',
       availability: 'Waiting',
-      book_url: 'https://www.irctc.co.in/'
+      book_url: 'https://www.irctc.co.in/',
+    },
+  ],
+  buses: [
+    {
+      operator: 'KSRTC',
+      note: 'Check timings on the official site',
+      url: 'https://ksrtc.in/',
     },
     {
-      number: '12028',
-      name: 'Shatabdi Express',
-      departs: '06:00',
-      arrives: '11:00',
-      availability: 'Available',
-      book_url: 'https://www.irctc.co.in/'
-    }
-  ];
+      operator: 'MSRTC / Official State Bus',
+      note: 'Check timings on the official site',
+      url: 'https://www.redbus.in/',
+    },
+  ],
+  fallback_help: '139',
+};
 
-  const buses = [
-    {
-      operator: 'KSRTC (Karnataka State Road Transport)',
-      note: 'Direct government bus services with verified tracking',
-      url: 'https://ksrtc.in/'
-    },
-    {
-      operator: 'TNSTC / APSRTC',
-      note: 'State highway express buses from Bengaluru',
-      url: 'https://www.tnstc.in/'
-    },
-    {
-      operator: 'redBus Portal',
-      note: 'Compare verified private & state bus departures',
-      url: 'https://www.redbus.in/'
-    }
-  ];
+export function S3Backup({ journey, onBack }) {
+  const { t } = useT();
+  const [data, setData] = useState(FALLBACK_BACKUP);
 
-  function renderAvailabilityBadge(status) {
-    if (status === 'Available') {
-      return (
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-900 border border-green-300">
-          <span aria-hidden="true">✔</span>
-          <span>Available</span>
-        </span>
-      );
-    }
-    if (status === 'Waiting') {
-      return (
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-semibold bg-amber-100 text-amber-900 border border-amber-300">
-          <span aria-hidden="true">⏳</span>
-          <span>Waiting</span>
-        </span>
-      );
-    }
-    return (
-      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-semibold bg-gray-100 text-gray-800 border border-gray-300">
-        <span aria-hidden="true">?</span>
-        <span>Unknown</span>
-      </span>
-    );
-  }
+  useEffect(() => {
+    if (!API_BASE || !journey?.route?.from || !journey?.route?.to) return;
+    const date = (journey.departure_iso || '').slice(0, 10);
+    fetch(`${API_BASE}/api/backup?from=${journey.route.from}&to=${journey.route.to}&date=${date}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((json) => {
+        if (json?.trains) setData(json);
+      })
+      .catch(() => {});
+  }, [journey]);
 
   return (
-    <div className="min-h-screen bg-[#F0F4FF] text-gray-900 pb-12">
-      {/* Header */}
-      <header className="sticky top-0 z-20 bg-white/95 backdrop-blur shadow-sm px-4 py-3 flex items-center justify-between border-b border-gray-200">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={onBack}
-            className="p-2 -ml-2 rounded-lg hover:bg-gray-100 active:bg-gray-200 min-h-[48px] min-w-[48px] flex items-center justify-center text-gray-700"
-            aria-label="Go back to My Journey"
-          >
-            <span className="text-2xl font-bold" aria-hidden="true">←</span>
-          </button>
-          <h1 className="text-xl font-bold tracking-tight text-gray-900">
-            {t('ui.backup_plan') || 'Backup plan'}
-          </h1>
-        </div>
-        {LangDropdownComponent && <LangDropdownComponent />}
-      </header>
+    <div className="min-h-screen flex flex-col bg-[#F4F3EF] text-[#0A0A0A]">
+      <Header title={t('ui.backup_plan')} onBack={onBack} />
 
-      {/* Main Content */}
-      <main className="max-w-md mx-auto px-4 pt-6 space-y-6">
-        {/* Intro */}
-        <div className="bg-white p-5 rounded-2xl shadow-sm border border-blue-100 space-y-2">
-          <p className="text-lg text-gray-800 font-medium">
-            Your ticket may not confirm. Here are other ways to travel from{' '}
-            <span className="font-bold text-blue-900">{routeFrom}</span> to{' '}
-            <span className="font-bold text-blue-900">{routeTo}</span>:
+      <main className="flex-1 max-w-md w-full mx-auto px-5 pt-2 pb-8 space-y-5">
+        <div className="rounded-[24px] bg-[#FFD600] border-2 border-[#0A0A0A] p-5">
+          <p className="text-[1.15rem] font-extrabold leading-snug">
+            Your ticket may not confirm. Here are other ways to go:
           </p>
         </div>
 
-        {/* Section: Other trains */}
-        <section aria-labelledby="heading-other-trains" className="space-y-3">
-          <div className="flex items-center gap-2">
-            <span className="text-2xl" aria-hidden="true">🚆</span>
-            <h2 id="heading-other-trains" className="text-xl font-bold text-gray-900 tracking-wide uppercase">
-              {t('ui.other_trains') || 'Other trains'}
-            </h2>
-          </div>
+        <section className="space-y-3">
+          <h2 className="text-xs font-extrabold uppercase tracking-[0.08em] text-[#0A0A0A]/70 flex items-center gap-2">
+            <Train className="w-4 h-4" />
+            <span>{t('ui.other_trains')}</span>
+          </h2>
 
-          <div className="space-y-3">
-            {trains.map((train) => (
-              <article
-                key={train.number}
-                className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 space-y-3 hover:border-blue-300 transition-colors"
+          {data.trains.map((tr) => {
+            const isAvail = tr.availability === 'Available';
+            const isWait = tr.availability === 'Waiting';
+            return (
+              <div
+                key={tr.number}
+                className="card-surface rounded-[24px] bg-white border-2 border-[#0A0A0A] p-4 space-y-3"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div>
-                    <h3 className="text-lg font-bold text-gray-900">
-                      {train.number} {train.name}
-                    </h3>
-                    <p className="text-base text-gray-600">
-                      Departs {train.departs} · Arrives {train.arrives}
+                    <p className="font-extrabold text-base">
+                      {tr.number} · {tr.name}
+                    </p>
+                    <p className="text-sm font-semibold text-[#0A0A0A]/75">
+                      {tr.departs} → {tr.arrives}
                     </p>
                   </div>
-                  {renderAvailabilityBadge(train.availability)}
+                  <span
+                    className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-extrabold border border-[#0A0A0A] ${
+                      isAvail
+                        ? 'bg-[#FFD600] text-[#0A0A0A]'
+                        : 'bg-[#F4F3EF] text-[#0A0A0A]'
+                    }`}
+                  >
+                    {isAvail ? (
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                    ) : isWait ? (
+                      <Clock className="w-3.5 h-3.5" />
+                    ) : (
+                      <HelpCircle className="w-3.5 h-3.5" />
+                    )}
+                    <span>{tr.availability}</span>
+                  </span>
                 </div>
 
-                <div className="pt-1">
-                  <a
-                    href={train.book_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-1.5 w-full py-2.5 px-4 rounded-lg bg-blue-700 hover:bg-blue-800 text-white font-semibold text-base min-h-[48px] shadow-sm active:scale-[0.99] transition"
-                  >
-                    <span>{t('ui.book') || 'Book'}</span>
-                    <span aria-hidden="true">↗</span>
-                  </a>
-                </div>
-              </article>
-            ))}
-          </div>
+                <a
+                  href={tr.book_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full min-h-[48px] px-5 rounded-full bg-[#0A0A0A] text-white font-extrabold text-sm flex items-center justify-center gap-2 hover:bg-[#222]"
+                >
+                  <span>{t('ui.book')}</span>
+                  <ExternalLink className="w-4 h-4" />
+                </a>
+              </div>
+            );
+          })}
         </section>
 
-        {/* Section: Buses */}
-        <section aria-labelledby="heading-buses" className="space-y-3 pt-2">
-          <div className="flex items-center gap-2">
-            <span className="text-2xl" aria-hidden="true">🚌</span>
-            <h2 id="heading-buses" className="text-xl font-bold text-gray-900 tracking-wide uppercase">
-              {t('ui.buses') || 'Buses'}
-            </h2>
-          </div>
+        <section className="space-y-3">
+          <h2 className="text-xs font-extrabold uppercase tracking-[0.08em] text-[#0A0A0A]/70 flex items-center gap-2">
+            <Bus className="w-4 h-4" />
+            <span>{t('ui.buses')}</span>
+          </h2>
 
-          <div className="space-y-3">
-            {buses.map((bus, idx) => (
-              <article
-                key={idx}
-                className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 space-y-2 hover:border-blue-300 transition-colors"
+          {data.buses.map((bus, idx) => (
+            <div
+              key={idx}
+              className="card-surface rounded-[24px] bg-white border-2 border-[#0A0A0A] p-4 flex items-center justify-between gap-3"
+            >
+              <div>
+                <p className="font-extrabold text-base">{bus.operator}</p>
+                <p className="text-xs font-semibold text-[#0A0A0A]/75">{bus.note}</p>
+              </div>
+              <a
+                href={bus.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="min-h-[48px] px-4 rounded-full border-2 border-[#0A0A0A] bg-[#F4F3EF] hover:bg-[#FFD600] font-extrabold text-sm inline-flex items-center gap-1.5 shrink-0"
               >
-                <h3 className="text-lg font-bold text-gray-900">
-                  {bus.operator}
-                </h3>
-                <p className="text-base text-gray-600">
-                  {bus.note}
-                </p>
-                <div className="pt-1">
-                  <a
-                    href={bus.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-1.5 w-full py-2.5 px-4 rounded-lg border-2 border-gray-300 hover:border-gray-400 bg-gray-50 text-gray-900 font-semibold text-base min-h-[48px] active:scale-[0.99] transition"
-                  >
-                    <span>{t('ui.open_site') || 'Open website'}</span>
-                    <span aria-hidden="true">↗</span>
-                  </a>
-                </div>
-              </article>
-            ))}
-          </div>
+                <span>{t('ui.open_site')}</span>
+                <ExternalLink className="w-4 h-4" />
+              </a>
+            </div>
+          ))}
         </section>
 
-        {/* Helpline 139 Assistance */}
-        <div className="text-center pt-2">
-          <a
-            href="tel:139"
-            className="inline-flex items-center justify-center gap-2 text-base font-semibold text-blue-800 hover:underline min-h-[48px] px-4"
-          >
-            <span aria-hidden="true">📞</span>
-            <span>{t('ui.call_139') || 'Call railway helpline 139'}</span>
-          </a>
-        </div>
-
-        {/* Primary Return Button (No pressure) */}
-        <div className="pt-4 sticky bottom-4">
-          <button
-            onClick={onBack}
-            className="w-full py-4 px-6 rounded-2xl bg-[#1A1A2E] hover:bg-gray-800 active:scale-[0.99] text-white font-bold text-lg min-h-[56px] shadow-lg flex items-center justify-center gap-3 transition"
-          >
-            <span aria-hidden="true">⏳</span>
-            <span>{t('ui.wait') || 'I will wait for the final list'}</span>
-          </button>
+        <div className="pt-2">
+          <BigButton variant="secondary" onClick={onBack}>
+            {t('ui.wait')}
+          </BigButton>
         </div>
       </main>
     </div>
