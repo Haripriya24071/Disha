@@ -1,42 +1,51 @@
 import { useEffect } from 'react';
 
-const API_BASE = import.meta.env.VITE_API_URL || '';
-const ALERT_TYPES = new Set(['platform_changed', 'delayed', 'cancelled', 'confirmed']);
+const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
 
-export function useSSE(pnr, { onAlert, onSilentUpdate }) {
+const ALERT_TYPES = new Set([
+  'platform_changed',
+  'delayed',
+  'cancelled',
+  'confirmed',
+]);
+
+export function useSSE(pnr, { onAlert, onSilentUpdate } = {}) {
   useEffect(() => {
-    if (!pnr || !API_BASE) return;
-    let source;
+    if (!pnr || !/^\d{10}$/.test(pnr)) return;
+    if (typeof EventSource === 'undefined') return;
+
     let closed = false;
+    const source = new EventSource(
+      `${API_BASE}/api/journey/${encodeURIComponent(pnr)}/stream`
+    );
 
-    const connect = () => {
-      if (closed) return;
-      source = new EventSource(`${API_BASE}/api/journey/${pnr}/stream`);
+    source.onmessage = (message) => {
+      if (closed || !message.data) return;
 
-      source.onmessage = (e) => {
-        try {
-          const event = JSON.parse(e.data);
-          if (ALERT_TYPES.has(event.type)) {
-            onAlert?.(event);
-          }
-          if (event.journey) {
-            onSilentUpdate?.(event.journey);
-          }
-        } catch {
-          // ignore keep-alive comments
+      try {
+        const event = JSON.parse(message.data);
+
+        if (ALERT_TYPES.has(event.type)) {
+          onAlert?.(event);
         }
-      };
 
-      source.onerror = () => {
-        source.close();
-        if (!closed) setTimeout(connect, 5000);
-      };
+        if (event.journey) {
+          onSilentUpdate?.(event.journey);
+        }
+      } catch (error) {
+        console.warn('Unable to process SSE event:', error);
+      }
     };
 
-    connect();
+    source.onerror = () => {
+      if (!closed) {
+        console.warn('SSE connection interrupted; waiting for reconnection.');
+      }
+    };
+
     return () => {
       closed = true;
-      source?.close();
+      source.close();
     };
   }, [pnr, onAlert, onSilentUpdate]);
 }

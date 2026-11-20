@@ -1,6 +1,6 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 
-const API_BASE = import.meta.env.VITE_API_URL || '';
+const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
 
 const FALLBACK_MOCKS = {
   '1111111111': {
@@ -57,16 +57,38 @@ const FALLBACK_MOCKS = {
   },
 };
 
+function readCache(pnr) {
+  try {
+    const cached = localStorage.getItem(`journey_${pnr}`);
+    return cached ? JSON.parse(cached) : null;
+  } catch {
+    return null;
+  }
+}
+
+function saveCache(pnr, data) {
+  try {
+    localStorage.setItem(`journey_${pnr}`, JSON.stringify(data));
+    localStorage.setItem('last_pnr', pnr);
+  } catch {
+    // Storage may be unavailable.
+  }
+}
+
 export function useJourney() {
   const [status, setStatus] = useState('idle');
   const [journey, setJourney] = useState(null);
   const [errorCode, setErrorCode] = useState(null);
+  const requestId = useRef(0);
 
   const fetchJourney = useCallback(async (rawPnr) => {
     const pnr = (rawPnr || '').replace(/\D/g, '');
+    const currentRequest = ++requestId.current;
+
     if (pnr.length !== 10 || pnr === '5555555555') {
       setStatus('error');
       setErrorCode('badpnr');
+      setJourney(null);
       return;
     }
 
@@ -74,52 +96,77 @@ export function useJourney() {
     setErrorCode(null);
 
     try {
-      if (!API_BASE && FALLBACK_MOCKS[pnr]) {
-        const mockData = { ...FALLBACK_MOCKS[pnr], last_updated_iso: new Date().toISOString() };
-        localStorage.setItem(`journey_${pnr}`, JSON.stringify(mockData));
-        localStorage.setItem('last_pnr', pnr);
-        setJourney(mockData);
-        setStatus('ok');
-        return;
-      }
+      const response = await fetch(
+        `${API_BASE}/api/journey/${encodeURIComponent(pnr)}`,
+        { headers: { Accept: 'application/json' } }
+      );
 
-      const res = await fetch(`${API_BASE}/api/journey/${pnr}`);
-      if (res.status === 400 || res.status === 404) {
+      if (currentRequest !== requestId.current) return;
+
+      if (response.status === 400 || response.status === 404) {
+        setJourney(null);
         setStatus('error');
         setErrorCode('badpnr');
         return;
       }
-      if (!res.ok) throw new Error('API failure');
 
-      const data = await res.json();
-      localStorage.setItem(`journey_${pnr}`, JSON.stringify(data));
-      localStorage.setItem('last_pnr', pnr);
+      if (!response.ok) {
+        throw new Error(`Journey API returned ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (!data || !data.pnr || !data.train || !data.ticket) {
+        throw new Error('Invalid journey response');
+      }
+
+      saveCache(pnr, data);
       setJourney(data);
       setStatus('ok');
-    } catch {
-      if (FALLBACK_MOCKS[pnr]) {
-        const mockData = { ...FALLBACK_MOCKS[pnr], last_updated_iso: new Date().toISOString() };
-        setJourney(mockData);
+      setErrorCode(null);
+    } catch (error) {
+      if (currentRequest !== requestId.current) return;
+
+      console.warn('Journey request failed:', error);
+
+      const cached = readCache(pnr);
+
+      if (cached) {
+        setJourney({ ...cached, data_source: 'cached' });
         setStatus('ok');
+        setErrorCode(navigator.onLine ? 'nodata' : 'offline');
         return;
       }
-      const cached = localStorage.getItem(`journey_${pnr}`);
-      if (cached) {
-        setJourney({ ...JSON.parse(cached), data_source: 'cached' });
+
+      if (FALLBACK_MOCKS[pnr]) {
+        setJourney({
+          ...FALLBACK_MOCKS[pnr],
+          last_updated_iso: new Date().toISOString(),
+        });
         setStatus('ok');
-        setErrorCode(navigator.onLine ? 'nodata' : 'offline');
-      } else {
-        setStatus('error');
-        setErrorCode(navigator.onLine ? 'nodata' : 'offline');
+        setErrorCode(null);
+        return;
       }
+
+      setJourney(null);
+      setStatus('error');
+      setErrorCode(navigator.onLine ? 'nodata' : 'offline');
     }
   }, []);
 
   const reset = useCallback(() => {
+    requestId.current += 1;
     setStatus('idle');
     setJourney(null);
     setErrorCode(null);
   }, []);
 
-  return { status, journey, setJourney, errorCode, fetchJourney, reset };
+  return {
+    status,
+    journey,
+    setJourney,
+    errorCode,
+    fetchJourney,
+    reset,
+  };
 }

@@ -23,11 +23,13 @@ function ClearTrackApp() {
     setAlertEvent(evt);
   }, []);
 
+  const setJourney = journeyState.setJourney;
+
   const handleSilentUpdate = useCallback(
     (updatedJourney) => {
-      journeyState.setJourney(updatedJourney);
+      setJourney(updatedJourney);
     },
-    [journeyState]
+    [setJourney]
   );
 
   useSSE(journeyState.journey?.pnr, {
@@ -48,23 +50,35 @@ function ClearTrackApp() {
     setScreen('S1');
   };
 
-  const triggerDemoPlatformChange = () => {
-    if (!journeyState.journey) return;
-    const prevPlat = journeyState.journey.platform?.current || '3';
-    const nextPlat = prevPlat === '6' ? '3' : '6';
-    const updated = {
-      ...journeyState.journey,
-      platform: { current: nextPlat, previous: prevPlat },
-      last_updated_iso: new Date().toISOString(),
-    };
-    journeyState.setJourney(updated);
-    setAlertEvent({
-      pnr: updated.pnr,
-      type: 'platform_changed',
-      data: { from: prevPlat, to: nextPlat },
-      timestamp_iso: new Date().toISOString(),
-      journey: updated,
-    });
+  const triggerDemoPlatformChange = async () => {
+    const pnr = journeyState.journey?.pnr;
+    if (!pnr) return;
+
+    try {
+      const apiBase = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+
+      const response = await fetch(`${apiBase}/api/demo/trigger`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          pnr,
+          event: 'platform_changed',
+        }),
+      });
+
+      const result = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(result.error || `Demo trigger failed: ${response.status}`);
+      }
+
+      console.info('Demo event triggered:', result);
+    } catch (error) {
+      console.error('Unable to trigger demo platform change:', error);
+    }
   };
 
   if (alertEvent) {
