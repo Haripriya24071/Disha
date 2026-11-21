@@ -1,4 +1,5 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "cd mobile-app && npm install && npm run build",
   "outputDirectory": "mobile-app/dist",
   "rewrites": [
@@ -7,11 +8,7 @@
       "destination": "/api/journey/[pnr]"
     },
     {
-      "source": "/api/:match*",
-      "destination": "/api/:match*"
-    },
-    {
-      "source": "/(.*)",
+      "source": "/((?!assets/|api/).*)",
       "destination": "/index.html"
     }
   ]
