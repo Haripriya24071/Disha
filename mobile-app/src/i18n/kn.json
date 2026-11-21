@@ -96,5 +96,11 @@
   "ui.scenarios_cnf": "ಖಚಿತಗೊಂಡಿದೆ",
   "ui.scenarios_cancelled": "ರದ್ದುಗೊಂಡ ರೈಲು",
   "ui.languages_label": "ಭಾಷೆಗಳು",
-  "ui.live_connected": "ಲೈವ್ ಸಂಪರ್ಕಗೊಂಡಿದೆ"
+  "ui.live_connected": "ಲೈವ್ ಸಂಪರ್ಕಗೊಂಡಿದೆ",
+  "ui.paste": "ಅಂಟಿಸು",
+  "ui.ready_10_digits": "ಸಿದ್ಧ (10 ಅಂಕಿಗಳು)",
+  "ui.platform_label": "ಪ್ಲಾಟ್‌ಫಾರ್ಮ್",
+  "ui.coach_berth": "ಬೋಗಿ ಮತ್ತು ಸೀಟು",
+  "ui.confirmed": "ದೃಢಪಟ್ಟಿದೆ",
+  "ui.seat_allocation": "ಸೀಟು ಹಂಚಿಕೆ"
 }

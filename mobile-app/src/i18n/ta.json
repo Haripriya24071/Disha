@@ -96,5 +96,11 @@
   "ui.scenarios_cnf": "உறுதிசெய்யப்பட்டது",
   "ui.scenarios_cancelled": "ரத்துசெய்யப்பட்ட ரயில்",
   "ui.languages_label": "மொழிகள்",
-  "ui.live_connected": "நேரடி இணைப்பு"
+  "ui.live_connected": "நேரடி இணைப்பு",
+  "ui.paste": "ஒட்டு",
+  "ui.ready_10_digits": "தயார் (10 இலக்கங்கள்)",
+  "ui.platform_label": "நடைமேடை",
+  "ui.coach_berth": "பெட்டி மற்றும் படுக்கை",
+  "ui.confirmed": "உறுதியானது",
+  "ui.seat_allocation": "இருக்கை ஒதுக்கீடு"
 }

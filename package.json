@@ -1,9 +1,21 @@
 {
   "name": "cleartrack-backend",
   "version": "1.0.0",
-  "main": "src/index.js",
-  "scripts": { "start": "node src/index.js", "test": "node test/run.js" },
-  "engines": { "node": ">=18" },
-  "dependencies": { "cors": "^2.8.5", "dotenv": "^16.4.5", "express": "^4.19.2" },
-  "optionalDependencies": { "twilio": "^5.3.0" }
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "build": "npm --prefix mobile-app install && npm --prefix mobile-app run build",
+    "test": "node run.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2"
+  },
+  "optionalDependencies": {
+    "twilio": "^5.3.0"
+  }
 }

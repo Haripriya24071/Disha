@@ -36,10 +36,10 @@ export default function S1Login({ onContinue }) {
             Disha · दिशा · ದಿಶಾ
           </span>
           <h1 className="text-2xl sm:text-3xl font-black leading-tight tracking-tight text-[#0A1E3F]">
-            Indian Railways information you can actually understand.
+            {t('ui.railway_guide') || 'Indian Railways information you can actually understand.'}
           </h1>
           <p className="text-sm font-semibold text-slate-600 mt-2">
-            Plain language status, instant delay and platform alerts, and automatic backup options in 8 Indian languages.
+            {t('ui.pnr_subtitle') || 'Plain language status, instant delay and platform alerts, and automatic backup options in 8 Indian languages.'}
           </p>
         </div>
 
@@ -48,7 +48,7 @@ export default function S1Login({ onContinue }) {
           <div className="flex items-center justify-between text-xs font-black uppercase tracking-wider text-slate-600">
             <span className="flex items-center gap-1.5">
               <Globe className="w-3.5 h-3.5 text-[#0A1E3F]" />
-              <span>Choose Language / भाषा चुनें</span>
+              <span>{t('ui.languages_label') || 'Choose Language'}</span>
             </span>
             <span className="text-[11px] font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">
               8 Languages
@@ -65,7 +65,7 @@ export default function S1Login({ onContinue }) {
                   onClick={() => setLang(l.code)}
                   className={`py-2 px-1 rounded-xl text-xs font-black text-center transition border cursor-pointer ${
                     active
-                      ? 'bg-[#0A1E3F] text-amber-400 border-[#0A1E3F] shadow-xs'
+                      ? 'bg-[#0A1E3F] text-amber-400 border-[#0A1E3F] shadow-xs ring-2 ring-amber-400/50'
                       : 'bg-slate-50 text-slate-800 border-slate-200 hover:bg-slate-100 hover:border-slate-300'
                   }`}
                 >
@@ -84,10 +84,10 @@ export default function S1Login({ onContinue }) {
             </div>
             <div>
               <span className="text-xs font-black uppercase tracking-wider text-amber-400">
-                Official PNR Tracker
+                {t('ui.badge_pnr_status') || 'Official PNR Tracker'}
               </span>
               <h2 className="text-base sm:text-lg font-black text-white leading-snug">
-                Know your seat, platform & chart status instantly.
+                {t('ui.enter_pnr') || 'Know your seat, platform & chart status instantly.'}
               </h2>
             </div>
           </div>
@@ -97,7 +97,7 @@ export default function S1Login({ onContinue }) {
         <form onSubmit={codeSent ? handleVerify : handleSendCode} className="space-y-3.5">
           <div className="rounded-2xl border-2 border-slate-300 bg-white p-3.5 shadow-2xs focus-within:border-[#0A1E3F] transition">
             <label className="block text-xs font-black uppercase tracking-wider text-slate-500">
-              Mobile Number (For WhatsApp / SMS Alerts)
+              {t('ui.alerts_phone') || 'Mobile Number (For WhatsApp / SMS Alerts)'}
             </label>
             <div className="flex items-center gap-2 mt-1">
               <span className="font-black text-slate-900 text-lg">+91</span>
@@ -116,7 +116,7 @@ export default function S1Login({ onContinue }) {
           {codeSent && (
             <div className="rounded-2xl border-2 border-slate-300 bg-white p-3.5 shadow-2xs focus-within:border-[#0A1E3F] transition">
               <label className="block text-xs font-black uppercase tracking-wider text-slate-500">
-                One-Time Password (OTP)
+                OTP (One-Time Password)
               </label>
               <input
                 type="text"

@@ -96,5 +96,11 @@
   "ui.scenarios_cnf": "ഉറപ്പിച്ചു",
   "ui.scenarios_cancelled": "റദ്ദാക്കിയ ട്രെയിൻ",
   "ui.languages_label": "ഭാഷകൾ",
-  "ui.live_connected": "തത്സമയ കണക്ഷൻ"
+  "ui.live_connected": "തത്സമയ കണക്ഷൻ",
+  "ui.paste": "ഒട്ടിക്കുക",
+  "ui.ready_10_digits": "തയ്യാറാണ് (10 അക്കങ്ങൾ)",
+  "ui.platform_label": "പ്ലാറ്റ്‌ഫോം",
+  "ui.coach_berth": "കോച്ചും ബെർത്തും",
+  "ui.confirmed": "സ്ഥിരീകരിച്ചു",
+  "ui.seat_allocation": "സീറ്റ് വിതരണം"
 }

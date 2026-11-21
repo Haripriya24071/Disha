@@ -20,7 +20,10 @@ import {
   Globe,
   Train,
   Check,
-  X
+  X,
+  ClipboardPaste,
+  ShieldCheck,
+  ArrowRight
 } from 'lucide-react';
 import { useT, LANGUAGES } from '../i18n/useT';
 import { useSpeech } from '../hooks/useSpeech';
@@ -51,10 +54,38 @@ export default function S2Journey({ journeyState, onOpenBackup, sseConnected }) 
   const [showSimulator, setShowSimulator] = useState(false);
 
   const testScenarios = [
-    { pnr: '1111111111', label: 'WL 8', desc: t('ui.scenarios_wl') || 'Waiting List', badge: 'bg-amber-100 text-amber-900 border-amber-300' },
-    { pnr: '2222222222', label: 'RAC', desc: t('ui.scenarios_rac') || 'Sitting Seat', badge: 'bg-blue-100 text-blue-900 border-blue-300' },
-    { pnr: '3333333333', label: 'CNF S4/32', desc: t('ui.scenarios_cnf') || 'Confirmed', badge: 'bg-emerald-100 text-emerald-900 border-emerald-300' },
-    { pnr: '4444444444', label: 'Cancelled', desc: t('ui.scenarios_cancelled') || 'Cancelled Train', badge: 'bg-red-100 text-red-900 border-red-300' },
+    {
+      pnr: '1111111111',
+      label: 'WL 8',
+      desc: t('ui.scenarios_wl') || 'Waiting List',
+      accent: 'border-amber-400 bg-amber-500/10 text-amber-950',
+      badge: 'bg-amber-500 text-slate-950',
+      tag: 'Waitlist #8'
+    },
+    {
+      pnr: '2222222222',
+      label: 'RAC 14',
+      desc: t('ui.scenarios_rac') || 'Sitting Seat',
+      accent: 'border-blue-400 bg-blue-500/10 text-blue-950',
+      badge: 'bg-[#0A1E3F] text-amber-300',
+      tag: 'RAC (Confirmed Seat)'
+    },
+    {
+      pnr: '3333333333',
+      label: 'CNF B2/32',
+      desc: t('ui.scenarios_cnf') || 'Confirmed',
+      accent: 'border-emerald-500 bg-emerald-500/10 text-emerald-950',
+      badge: 'bg-emerald-700 text-white',
+      tag: 'Coach B2 · Berth 32'
+    },
+    {
+      pnr: '4444444444',
+      label: 'Cancelled',
+      desc: t('ui.scenarios_cancelled') || 'Cancelled Train',
+      accent: 'border-red-500 bg-red-500/10 text-red-950',
+      badge: 'bg-red-700 text-white',
+      tag: 'Emergency Alert'
+    },
   ];
 
   const openTerm = (id) => {
@@ -72,6 +103,21 @@ export default function S2Journey({ journeyState, onOpenBackup, sseConnected }) 
   const handleQuickPnr = (pnr) => {
     setPnrInput(pnr);
     fetchJourney(pnr);
+  };
+
+  const handlePaste = async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      const cleaned = text.replace(/\D/g, '').slice(0, 10);
+      if (cleaned) {
+        setPnrInput(cleaned);
+        if (cleaned.length === 10) {
+          fetchJourney(cleaned);
+        }
+      }
+    } catch {
+      // Clipboard denied
+    }
   };
 
   const handleRefresh = async () => {
@@ -131,10 +177,11 @@ export default function S2Journey({ journeyState, onOpenBackup, sseConnected }) 
     return stripRich(`${main} ${decide} ${plat}`);
   };
 
-  const isTenDigits = pnrInput.replace(/\D/g, '').length === 10;
+  const cleanDigits = pnrInput.replace(/\D/g, '');
+  const isTenDigits = cleanDigits.length === 10;
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F8FAFC]">
+    <div className="min-h-screen flex flex-col bg-[#F3F6FA] text-slate-900">
       <Header
         onBack={status === 'ok' ? reset : undefined}
         rightElement={
@@ -147,14 +194,19 @@ export default function S2Journey({ journeyState, onOpenBackup, sseConnected }) 
         }
       />
 
-      <main className="flex-1 max-w-xl w-full mx-auto px-4 sm:px-6 pt-3 pb-10 space-y-5">
-        {/* Visible On-Screen Language Bar (All 8 Languages) */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
-          <span className="text-[11px] font-black uppercase text-slate-500 shrink-0 flex items-center gap-1 mr-1">
-            <Globe className="w-3.5 h-3.5 text-[#0A1E3F]" />
-            <span>{t('ui.languages_label') || 'Languages'}:</span>
-          </span>
-          <div className="flex items-center gap-1.5">
+      <main className="flex-1 max-w-xl w-full mx-auto px-4 sm:px-6 pt-3 pb-12 space-y-5">
+        {/* Visible On-Screen Language Bar (All 8 Languages in native script, 100% visible on-screen) */}
+        <div className="rounded-2xl bg-white border-2 border-slate-200/90 p-3 shadow-xs space-y-2">
+          <div className="flex items-center justify-between px-1">
+            <span className="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+              <Globe className="w-4 h-4 text-[#0A1E3F]" />
+              <span>{t('ui.languages_label') || 'Select Language'}</span>
+            </span>
+            <span className="text-[11px] font-black bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full border border-amber-300">
+              8 Languages
+            </span>
+          </div>
+          <div className="grid grid-cols-4 sm:grid-cols-8 gap-1.5">
             {LANGUAGES.map((l) => {
               const active = lang === l.code;
               return (
@@ -162,13 +214,16 @@ export default function S2Journey({ journeyState, onOpenBackup, sseConnected }) 
                   key={l.code}
                   type="button"
                   onClick={() => setLang(l.code)}
-                  className={`px-3 py-1 rounded-xl text-xs font-black transition cursor-pointer shrink-0 border ${
+                  className={`py-2 px-1 rounded-xl text-xs font-black text-center transition-all cursor-pointer border-2 ${
                     active
-                      ? 'bg-[#0A1E3F] text-amber-400 border-[#0A1E3F] shadow-xs'
-                      : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100 hover:border-slate-300'
+                      ? 'bg-[#0A1E3F] text-amber-400 border-[#0A1E3F] shadow-md scale-[1.03] ring-2 ring-amber-400/40'
+                      : 'bg-slate-50 text-slate-800 border-slate-200 hover:bg-amber-50/60 hover:border-amber-300'
                   }`}
                 >
-                  {l.native}
+                  <span className="block truncate text-xs font-black">{l.native}</span>
+                  <span className={`block text-[9px] font-bold uppercase tracking-wider mt-0.5 ${active ? 'text-amber-300' : 'text-slate-400'}`}>
+                    {l.code}
+                  </span>
                 </button>
               );
             })}
@@ -178,51 +233,63 @@ export default function S2Journey({ journeyState, onOpenBackup, sseConnected }) 
         {status !== 'ok' ? (
           /* STATE A: PNR Input Screen */
           <div className="space-y-6 pt-1">
-            {/* Indian Railways Heading */}
-            <div>
-              <span className="inline-block bg-amber-400 text-slate-950 px-3 py-1 font-black text-xs uppercase tracking-wider rounded-md mb-2 shadow-2xs">
-                {t('ui.badge_pnr_status') || 'Indian Railways PNR Status'}
-              </span>
-              <h1 className="text-2xl sm:text-3xl font-black leading-tight tracking-tight text-[#0A1E3F]">
-                {t('ui.enter_pnr')}
-              </h1>
-              <p className="text-sm font-semibold text-slate-600 mt-1">
-                {t('ui.pnr_subtitle') || 'Enter your 10-digit ticket number to get plain-language updates in your own language.'}
-              </p>
+            {/* Indian Railways Hero Header */}
+            <div className="rounded-3xl bg-gradient-to-r from-[#07162C] via-[#0A1E3F] to-[#123363] text-white p-6 shadow-md border-2 border-slate-900 relative overflow-hidden">
+              <div className="absolute right-0 top-0 bottom-0 opacity-10 pointer-events-none flex items-center pr-4">
+                <Train className="w-40 h-40 text-white" />
+              </div>
+
+              <div className="relative z-10 space-y-2">
+                <span className="inline-block bg-amber-400 text-slate-950 px-3 py-1 font-black text-xs uppercase tracking-wider rounded-lg shadow-2xs">
+                  {t('ui.badge_pnr_status') || 'Indian Railways PNR Status'}
+                </span>
+                <h1 className="text-2xl sm:text-3xl font-black leading-tight tracking-tight text-white drop-shadow-xs">
+                  {t('ui.enter_pnr')}
+                </h1>
+                <p className="text-sm font-semibold text-slate-200 leading-relaxed">
+                  {t('ui.pnr_subtitle') || 'Enter your 10-digit ticket number to get plain-language updates in your own language.'}
+                </p>
+              </div>
             </div>
 
-            {/* Quick Test PNR Selector Chips */}
-            <div className="space-y-2">
-              <span className="text-xs font-black uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-                <span>{t('ui.quick_scenarios') || 'Quick Test Scenarios'}</span>
-              </span>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {/* Quick Test Scenarios Cards */}
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-black uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                  <span>{t('ui.quick_scenarios') || 'Quick Test Scenarios'}</span>
+                </span>
+                <span className="text-[11px] font-semibold text-slate-500">1-Tap to inspect</span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2.5">
                 {testScenarios.map((item) => (
                   <button
                     key={item.pnr}
                     type="button"
                     onClick={() => handleQuickPnr(item.pnr)}
-                    className="p-3 rounded-2xl border border-slate-200 bg-white hover:border-amber-400 hover:bg-amber-50/50 text-left transition shadow-2xs group cursor-pointer"
+                    className={`p-3.5 rounded-2xl border-2 text-left transition shadow-xs hover:scale-[1.02] active:scale-[0.99] cursor-pointer group bg-white ${item.accent}`}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-black text-xs text-slate-900 group-hover:text-amber-900">
+                      <span className="font-black text-sm text-slate-900 group-hover:text-[#0A1E3F]">
                         {item.label}
                       </span>
-                      <span className={`w-2 h-2 rounded-full ${item.pnr === '3333333333' ? 'bg-emerald-500' : item.pnr === '4444444444' ? 'bg-red-500' : 'bg-amber-400'}`} />
+                      <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${item.badge}`}>
+                        {item.desc}
+                      </span>
                     </div>
-                    <span className="block text-[11px] font-semibold text-slate-500 truncate mt-1">
-                      {item.desc}
+                    <span className="block text-xs font-bold text-slate-500 mt-2 truncate">
+                      {item.tag}
                     </span>
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Classic Indian Railways Boarding Pass Ticket Form */}
+            {/* Indian Railways Boarding Pass Ticket Search Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="rounded-3xl border-2 border-[#0A1E3F] bg-white shadow-md overflow-hidden">
-                {/* Golden Railway Ticket Top Bar */}
+              <div className="rounded-3xl border-2 border-[#0A1E3F] bg-white shadow-md overflow-hidden relative">
+                {/* Golden Header Strip */}
                 <div className="bg-[#0A1E3F] px-5 py-3 text-white flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Train className="w-4 h-4 text-amber-400" />
@@ -230,43 +297,77 @@ export default function S2Journey({ journeyState, onOpenBackup, sseConnected }) 
                       {t('ui.pnr_label') || '10-Digit PNR Number'}
                     </span>
                   </div>
-                  <span className={`text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1 ${
-                    isTenDigits ? 'bg-emerald-500 text-white' : 'bg-slate-800 text-slate-300'
+                  <span className={`text-[11px] font-mono font-bold px-3 py-1 rounded-full flex items-center gap-1 transition ${
+                    isTenDigits ? 'bg-emerald-500 text-white shadow-xs' : 'bg-slate-800 text-slate-300'
                   }`}>
-                    {isTenDigits && <Check className="w-3 h-3 stroke-[3]" />}
-                    <span>{pnrInput.length} / 10 Digits</span>
+                    {isTenDigits ? (
+                      <>
+                        <Check className="w-3.5 h-3.5 stroke-[3]" />
+                        <span>{t('ui.ready_10_digits') || 'Ready (10 Digits)'}</span>
+                      </>
+                    ) : (
+                      <span>{cleanDigits.length} / 10 Digits</span>
+                    )}
                   </span>
                 </div>
 
-                {/* Input Field */}
-                <div className="p-4 sm:p-5 flex items-center justify-between gap-3">
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    maxLength={10}
-                    value={pnrInput}
-                    onChange={(e) => setPnrInput(e.target.value.replace(/\D/g, ''))}
-                    placeholder="e.g. 4801952313"
-                    aria-label={t('ui.enter_pnr')}
-                    className="w-full bg-transparent text-2xl sm:text-3xl font-black tracking-widest text-[#0A1E3F] outline-none font-mono placeholder:text-slate-300"
-                  />
-                  {pnrInput && (
-                    <button
-                      type="button"
-                      onClick={() => setPnrInput('')}
-                      className="px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition flex items-center gap-1 shrink-0 cursor-pointer"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                      <span>{t('ui.clear') || 'Clear'}</span>
-                    </button>
-                  )}
+                {/* Input & Action Bar */}
+                <div className="p-5 space-y-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <input
+                      type="tel"
+                      inputMode="numeric"
+                      maxLength={10}
+                      value={pnrInput}
+                      onChange={(e) => setPnrInput(e.target.value.replace(/\D/g, ''))}
+                      placeholder="4801952313"
+                      aria-label={t('ui.enter_pnr')}
+                      className="w-full bg-transparent text-2xl sm:text-3xl font-black tracking-widest text-[#0A1E3F] outline-none font-mono placeholder:text-slate-300"
+                    />
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      {!pnrInput && (
+                        <button
+                          type="button"
+                          onClick={handlePaste}
+                          className="px-3 py-1.5 rounded-xl border border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                        >
+                          <ClipboardPaste className="w-3.5 h-3.5 text-slate-600" />
+                          <span>{t('ui.paste') || 'Paste'}</span>
+                        </button>
+                      )}
+
+                      {pnrInput && (
+                        <button
+                          type="button"
+                          onClick={() => setPnrInput('')}
+                          className="px-3 py-1.5 rounded-xl border border-slate-300 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                          <span>{t('ui.clear') || 'Clear'}</span>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Character Progress Pip Line */}
+                  <div className="flex items-center gap-1 pt-1">
+                    {Array.from({ length: 10 }).map((_, i) => (
+                      <div
+                        key={i}
+                        className={`h-1.5 flex-1 rounded-full transition-all duration-200 ${
+                          i < cleanDigits.length ? 'bg-amber-500' : 'bg-slate-200'
+                        }`}
+                      />
+                    ))}
+                  </div>
                 </div>
               </div>
 
               {errorCode && (
                 <div
                   role="alert"
-                  className="p-4 rounded-2xl bg-red-50 text-red-900 border-2 border-red-300 font-bold text-sm flex items-start gap-3 shadow-xs animate-shake"
+                  className="p-4 rounded-2xl bg-red-50 text-red-900 border-2 border-red-300 font-bold text-sm flex items-start gap-3 shadow-xs"
                 >
                   <AlertTriangle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
                   <div>
@@ -308,7 +409,7 @@ export default function S2Journey({ journeyState, onOpenBackup, sseConnected }) 
           </div>
         ) : (
           /* STATE B: Journey Loaded */
-          <div className="space-y-4">
+          <div className="space-y-5">
             {/* Quick Test Switcher Bar (in Journey View) */}
             <div className="flex items-center justify-between gap-2 overflow-x-auto pb-1 no-scrollbar">
               <span className="text-[11px] font-black uppercase text-slate-500 shrink-0">Switch:</span>
@@ -427,32 +528,32 @@ export default function S2Journey({ journeyState, onOpenBackup, sseConnected }) 
             </div>
 
             {/* Interactive Live SSE Change Event Simulation Hub */}
-            <div className="pt-3">
+            <div className="pt-2">
               <button
                 type="button"
                 onClick={() => setShowSimulator((v) => !v)}
-                className="w-full py-2.5 px-4 rounded-xl border border-amber-300 bg-amber-50/70 hover:bg-amber-100/70 text-amber-950 font-black text-xs flex items-center justify-between transition cursor-pointer"
+                className="w-full py-3 px-4 rounded-2xl border-2 border-amber-400 bg-amber-50 hover:bg-amber-100/80 text-amber-950 font-black text-xs flex items-center justify-between transition cursor-pointer shadow-xs"
               >
                 <span className="flex items-center gap-2">
-                  <Zap className="w-4 h-4 text-amber-600" />
-                  <span>Test Real-Time Live SSE Events (S4 Trigger)</span>
+                  <Zap className="w-4 h-4 text-amber-600 fill-amber-500" />
+                  <span>Test Real-Time Live SSE Events (S4 Emergency Alert)</span>
                 </span>
-                <span className="text-[11px] underline">
-                  {showSimulator ? 'Hide Simulator' : 'Show Simulator'}
+                <span className="text-[11px] font-bold underline">
+                  {showSimulator ? 'Hide Drawer' : 'Open Drawer'}
                 </span>
               </button>
 
               {showSimulator && (
-                <div className="mt-2 p-3.5 rounded-2xl bg-white border-2 border-amber-300 space-y-2.5 shadow-sm">
+                <div className="mt-2.5 p-4 rounded-2xl bg-white border-2 border-amber-300 space-y-3 shadow-md animate-slide-up">
                   <p className="text-xs font-semibold text-slate-600">
-                    Click any scenario to push a live Server-Sent Event (SSE) to this screen and test S4 Change Alert:
+                    Push real Server-Sent Events (SSE) to test full-screen alerts and live state changes:
                   </p>
                   <div className="grid grid-cols-2 gap-2">
                     <button
                       type="button"
                       disabled={triggeringEvent !== null}
                       onClick={() => triggerLiveDemoEvent('platform_changed')}
-                      className="p-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-amber-100 text-xs font-black text-slate-900 text-left transition cursor-pointer"
+                      className="p-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-amber-100 text-xs font-black text-slate-900 text-left transition cursor-pointer"
                     >
                       📢 Platform 3 ➔ 6
                     </button>
@@ -460,7 +561,7 @@ export default function S2Journey({ journeyState, onOpenBackup, sseConnected }) 
                       type="button"
                       disabled={triggeringEvent !== null}
                       onClick={() => triggerLiveDemoEvent('delayed')}
-                      className="p-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-amber-100 text-xs font-black text-slate-900 text-left transition cursor-pointer"
+                      className="p-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-amber-100 text-xs font-black text-slate-900 text-left transition cursor-pointer"
                     >
                       ⏱ +45m Train Delay
                     </button>
@@ -468,7 +569,7 @@ export default function S2Journey({ journeyState, onOpenBackup, sseConnected }) 
                       type="button"
                       disabled={triggeringEvent !== null}
                       onClick={() => triggerLiveDemoEvent('cancelled')}
-                      className="p-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-red-100 text-xs font-black text-slate-900 text-left transition cursor-pointer"
+                      className="p-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-red-100 text-xs font-black text-slate-900 text-left transition cursor-pointer"
                     >
                       ⚠️ Train Cancelled
                     </button>
@@ -476,7 +577,7 @@ export default function S2Journey({ journeyState, onOpenBackup, sseConnected }) 
                       type="button"
                       disabled={triggeringEvent !== null}
                       onClick={() => triggerLiveDemoEvent('confirmed')}
-                      className="p-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-emerald-100 text-xs font-black text-slate-900 text-left transition cursor-pointer"
+                      className="p-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-emerald-100 text-xs font-black text-slate-900 text-left transition cursor-pointer"
                     >
                       🎉 Ticket Confirmed
                     </button>

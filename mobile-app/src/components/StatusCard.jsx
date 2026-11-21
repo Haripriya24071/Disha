@@ -115,7 +115,7 @@ export default function StatusCard({ journey, onOpenTerm }) {
           {/* Authentic Electronic Platform Signboard */}
           <div className="text-right shrink-0">
             <span className="text-[10px] font-black uppercase tracking-wider text-amber-400 block mb-0.5">
-              PLATFORM
+              {t('ui.platform_label') || 'PLATFORM'}
             </span>
             <div className="inline-block bg-slate-950 border-2 border-amber-500/80 rounded-xl px-3.5 py-1 font-mono font-black text-amber-400 text-2xl tracking-wider shadow-inner">
               {platform?.current ? platform.current : '—'}
@@ -187,14 +187,16 @@ export default function StatusCard({ journey, onOpenTerm }) {
                   {ticket.coach}
                 </div>
                 <div>
-                  <p className="text-xs font-black uppercase text-emerald-800 tracking-wider">Coach & Berth</p>
+                  <p className="text-xs font-black uppercase text-emerald-800 tracking-wider">
+                    {t('ui.coach_berth') || 'Coach & Berth'}
+                  </p>
                   <p className="text-lg font-black text-emerald-950">
                     Berth {ticket.berth} · {berthTypeStr}
                   </p>
                 </div>
               </div>
               <span className="text-xs font-bold text-emerald-800 bg-emerald-200/80 px-2.5 py-1 rounded-lg">
-                Confirmed
+                {t('ui.confirmed') || 'Confirmed'}
               </span>
             </div>
 
@@ -218,7 +220,9 @@ export default function StatusCard({ journey, onOpenTerm }) {
         {type === 'RAC' && (
           <div className="rounded-2xl border-2 border-slate-800 bg-slate-50 p-4 flex items-center justify-between shadow-2xs">
             <div>
-              <p className="text-xs font-black uppercase text-slate-500 tracking-wider">Seat Allocation</p>
+              <p className="text-xs font-black uppercase text-slate-500 tracking-wider">
+                {t('ui.seat_allocation') || 'Seat Allocation'}
+              </p>
               <p className="text-base font-black text-slate-900">
                 {ticket.berth || ticket.raw || 'Sitting Seat Reserved'}
               </p>

@@ -96,5 +96,11 @@
   "ui.scenarios_cnf": "पुष्टीकृत (कन्फर्म)",
   "ui.scenarios_cancelled": "रद्द की गई ट्रेन",
   "ui.languages_label": "भाषाएँ",
-  "ui.live_connected": "लाइव कनेक्टेड"
+  "ui.live_connected": "लाइव कनेक्टेड",
+  "ui.paste": "पेस्ट करें",
+  "ui.ready_10_digits": "तैयार (10 अंक)",
+  "ui.platform_label": "प्लेटफ़ॉर्म",
+  "ui.coach_berth": "कोच और बर्थ",
+  "ui.confirmed": "पुष्टि हुई",
+  "ui.seat_allocation": "सीट आवंटन"
 }

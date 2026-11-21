@@ -96,5 +96,11 @@
   "ui.scenarios_cnf": "নিশ্চিত",
   "ui.scenarios_cancelled": "বাতিল ট্রেন",
   "ui.languages_label": "ভাষা",
-  "ui.live_connected": "লাইভ সংযুক্ত"
+  "ui.live_connected": "লাইভ সংযুক্ত",
+  "ui.paste": "পেস্ট করুন",
+  "ui.ready_10_digits": "প্রস্তুত (১০টি সংখ্যা)",
+  "ui.platform_label": "প্ল্যাটফর্ম",
+  "ui.coach_berth": "কোচ ও বার্থ",
+  "ui.confirmed": "নিশ্চিত",
+  "ui.seat_allocation": "আসন বণ্টন"
 }

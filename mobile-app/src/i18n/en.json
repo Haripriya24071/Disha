@@ -96,5 +96,11 @@
   "ui.scenarios_cnf": "Confirmed",
   "ui.scenarios_cancelled": "Cancelled Train",
   "ui.languages_label": "Languages",
-  "ui.live_connected": "Live Connected"
+  "ui.live_connected": "Live Connected",
+  "ui.paste": "Paste",
+  "ui.ready_10_digits": "Ready (10 Digits)",
+  "ui.platform_label": "PLATFORM",
+  "ui.coach_berth": "Coach & Berth",
+  "ui.confirmed": "Confirmed",
+  "ui.seat_allocation": "Seat Allocation"
 }

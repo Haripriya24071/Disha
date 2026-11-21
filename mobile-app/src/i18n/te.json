@@ -96,5 +96,11 @@
   "ui.scenarios_cnf": "ధృవీకరించబడింది",
   "ui.scenarios_cancelled": "రద్దైన రైలు",
   "ui.languages_label": "భాషలు",
-  "ui.live_connected": "లైవ్ కనెక్ట్ చేయబడింది"
+  "ui.live_connected": "లైవ్ కనెక్ట్ చేయబడింది",
+  "ui.paste": "అతికించు",
+  "ui.ready_10_digits": "సిద్ధం (10 అంకెలు)",
+  "ui.platform_label": "ప్లాట్‌ఫారమ్",
+  "ui.coach_berth": "బోగీ మరియు బెర్త్",
+  "ui.confirmed": "ఖరారైంది",
+  "ui.seat_allocation": "సీటు కేటాయింపు"
 }

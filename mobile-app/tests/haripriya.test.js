@@ -38,7 +38,8 @@ test('2. 100% key parity across all 8 language dictionaries', () => {
   const enData = JSON.parse(fs.readFileSync(enPath, 'utf8'));
   const enKeys = Object.keys(enData).filter(k => k !== '_status').sort();
 
-  assert.strictEqual(enKeys.length, 97, 'en.json must contain exactly 97 localized keys');
+  assert.ok(enKeys.length >= 97, 'en.json must contain at least 97 localized keys');
+  assert.strictEqual(enKeys.length, 103, 'en.json must contain all 103 localized keys');
 
   for (const lang of languages) {
     const filePath = path.join(i18nDir, `${lang}.json`);
