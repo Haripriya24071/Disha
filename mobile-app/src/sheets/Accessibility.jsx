@@ -47,9 +47,9 @@ export default function Accessibility({ open, onClose }) {
 
   return (
     <Sheet open={open} onClose={onClose} title={t('ui.settings')}>
-      <div className="space-y-4 pt-1">
+      <div className="space-y-5 pt-1">
         {/* Accessibility Toggles */}
-        <div className="space-y-2.5">
+        <div className="space-y-3">
           {rows.map(({ id, label, icon: Icon, value, toggle }) => (
             <button
               key={id}
@@ -57,19 +57,19 @@ export default function Accessibility({ open, onClose }) {
               role="switch"
               aria-checked={value}
               onClick={toggle}
-              className={`w-full min-h-[58px] px-5 rounded-2xl border-2 flex items-center justify-between gap-3 font-black transition cursor-pointer ${
+              className={`w-full min-h-[64px] px-5 rounded-2xl border-2 border-slate-900 flex items-center justify-between gap-3 font-black transition-all cursor-pointer ${
                 value
-                  ? 'bg-[#0A1E3F] text-amber-400 border-[#0A1E3F]'
-                  : 'bg-white text-slate-800 border-slate-200 hover:border-slate-300'
+                  ? 'bg-slate-900 text-amber-400 shadow-[3px_3px_0px_0px_#0f172a]'
+                  : 'bg-white text-slate-900 hover:bg-amber-50 shadow-[2px_2px_0px_0px_#0f172a] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none'
               }`}
             >
               <span className="flex items-center gap-3">
-                <Icon className="w-5 h-5 shrink-0 stroke-[2.2]" />
-                <span className="text-base">{label}</span>
+                <Icon className="w-5 h-5 shrink-0 stroke-[2.5]" />
+                <span className="text-base sm:text-lg">{label}</span>
               </span>
               <span
-                className={`px-3 py-1 rounded-full text-xs font-black ${
-                  value ? 'bg-amber-400 text-slate-950' : 'bg-slate-100 text-slate-600'
+                className={`px-3 py-1 rounded-xl text-xs font-black border-2 border-slate-900 ${
+                  value ? 'bg-amber-400 text-slate-950 shadow-[1px_1px_0px_0px_#ffffff]' : 'bg-slate-200 text-slate-800'
                 }`}
               >
                 {value ? 'ON' : 'OFF'}
@@ -79,31 +79,31 @@ export default function Accessibility({ open, onClose }) {
         </div>
 
         {/* Live RapidAPI IRCTC Configuration */}
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-3">
+        <div className="rounded-2xl border-2 border-slate-900 bg-amber-50 p-5 space-y-3 shadow-[3px_3px_0px_0px_#0f172a]">
           <div className="flex items-center gap-2">
-            <Key className="w-4 h-4 text-[#0A1E3F]" />
-            <span className="text-xs font-black uppercase tracking-wider text-slate-700">
+            <Key className="w-4 h-4 text-slate-950 stroke-[2.5]" />
+            <span className="text-xs font-black uppercase tracking-wider text-slate-950">
               Live IRCTC RapidAPI Key (Optional)
             </span>
           </div>
 
-          <form onSubmit={handleSaveApiKey} className="space-y-2">
+          <form onSubmit={handleSaveApiKey} className="space-y-3">
             <input
               type="password"
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
               placeholder="Enter RapidAPI Key for live queries"
-              className="w-full px-3 py-2.5 rounded-xl border border-slate-300 bg-white font-mono text-xs outline-none focus:border-[#0A1E3F]"
+              className="w-full px-4 py-3 rounded-xl border-2 border-slate-900 bg-white font-mono text-sm outline-none focus:ring-2 focus:ring-amber-400"
             />
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-[11px] font-semibold text-slate-500">
-                {savedKey ? '✔ Key saved!' : 'Leave blank to use verified mock mode.'}
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="text-xs font-bold text-slate-700">
+                {savedKey ? '✔ Custom API key saved!' : 'Leave blank to use verified zero-config mode.'}
               </span>
               <button
                 type="submit"
-                className="px-4 py-1.5 rounded-xl bg-[#0A1E3F] text-white font-black text-xs hover:bg-[#163668] transition cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-slate-900 text-white font-black text-xs border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0f172a] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all cursor-pointer"
               >
-                Save
+                Save Key
               </button>
             </div>
           </form>

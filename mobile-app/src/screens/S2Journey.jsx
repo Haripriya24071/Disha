@@ -11,21 +11,23 @@ import {
   PhoneCall,
   HelpCircle,
   Search,
-  Radio,
   Zap,
   CheckCircle2,
   AlertTriangle,
   Clock,
   Sparkles,
-  Globe,
   Train,
   Check,
   X,
   ClipboardPaste,
   ShieldCheck,
-  ArrowRight
+  Luggage,
+  Coffee,
+  Accessibility as AccessibilityIcon,
+  HelpCircle as QuestionIcon,
+  Info
 } from 'lucide-react';
-import { useT, LANGUAGES } from '../i18n/useT';
+import { useT } from '../i18n/useT';
 import { useSpeech } from '../hooks/useSpeech';
 import { stripRich } from '../components/Term';
 import Header from '../components/Header';
@@ -43,7 +45,7 @@ function minutesAgo(iso) {
 }
 
 export default function S2Journey({ journeyState, onOpenBackup, sseConnected }) {
-  const { t, lang, setLang } = useT();
+  const { t, lang } = useT();
   const { speak, speaking, cancel, voiceUnavailable } = useSpeech();
   const { status, journey, errorCode, fetchJourney, reset } = journeyState;
   const [pnrInput, setPnrInput] = useState(() => localStorage.getItem('last_pnr') || '');
@@ -58,32 +60,32 @@ export default function S2Journey({ journeyState, onOpenBackup, sseConnected }) 
       pnr: '1111111111',
       label: 'WL 8',
       desc: t('ui.scenarios_wl') || 'Waiting List',
-      accent: 'border-amber-400 bg-amber-500/10 text-amber-950',
-      badge: 'bg-amber-500 text-slate-950',
+      accent: 'border-slate-900 bg-amber-50 text-slate-950',
+      badge: 'bg-amber-400 text-slate-950 border border-slate-900',
       tag: 'Waitlist #8'
     },
     {
       pnr: '2222222222',
       label: 'RAC 14',
       desc: t('ui.scenarios_rac') || 'Sitting Seat',
-      accent: 'border-blue-400 bg-blue-500/10 text-blue-950',
-      badge: 'bg-[#0A1E3F] text-amber-300',
+      accent: 'border-slate-900 bg-blue-50 text-slate-950',
+      badge: 'bg-blue-300 text-slate-950 border border-slate-900',
       tag: 'RAC (Confirmed Seat)'
     },
     {
       pnr: '3333333333',
       label: 'CNF B2/32',
       desc: t('ui.scenarios_cnf') || 'Confirmed',
-      accent: 'border-emerald-500 bg-emerald-500/10 text-emerald-950',
-      badge: 'bg-emerald-700 text-white',
+      accent: 'border-slate-900 bg-emerald-50 text-slate-950',
+      badge: 'bg-emerald-400 text-slate-950 border border-slate-900',
       tag: 'Coach B2 · Berth 32'
     },
     {
       pnr: '4444444444',
       label: 'Cancelled',
       desc: t('ui.scenarios_cancelled') || 'Cancelled Train',
-      accent: 'border-red-500 bg-red-500/10 text-red-950',
-      badge: 'bg-red-700 text-white',
+      accent: 'border-slate-900 bg-red-50 text-slate-950',
+      badge: 'bg-red-400 text-slate-950 border border-slate-900',
       tag: 'Emergency Alert'
     },
   ];
@@ -181,130 +183,56 @@ export default function S2Journey({ journeyState, onOpenBackup, sseConnected }) 
   const isTenDigits = cleanDigits.length === 10;
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F3F6FA] text-slate-900">
+    <div className="min-h-screen flex flex-col bg-[#F8F9FA] text-slate-950 font-sans">
       <Header
         onBack={status === 'ok' ? reset : undefined}
         rightElement={
           status === 'ok' && (
-            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-xs font-bold text-slate-700">
-              <span className={`w-2 h-2 rounded-full ${sseConnected ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
-              <span className="hidden sm:inline">{sseConnected ? (t('ui.live_connected') || 'Live') : 'Polling'}</span>
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white border-2 border-slate-900 text-xs font-black text-slate-900 shadow-[1px_1px_0px_0px_#0f172a]">
+              <span className={`w-2.5 h-2.5 rounded-full ${sseConnected ? 'bg-emerald-500 animate-pulse' : 'bg-amber-400'}`} />
+              <span className="hidden sm:inline">{sseConnected ? (t('ui.live_connected') || 'Live SSE') : 'Polling'}</span>
             </div>
           )
         }
       />
 
-      <main className="flex-1 max-w-xl w-full mx-auto px-4 sm:px-6 pt-3 pb-12 space-y-5">
-        {/* Visible On-Screen Language Bar (All 8 Languages in native script, 100% visible on-screen) */}
-        <div className="rounded-2xl bg-white border-2 border-slate-200/90 p-3 shadow-xs space-y-2">
-          <div className="flex items-center justify-between px-1">
-            <span className="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-              <Globe className="w-4 h-4 text-[#0A1E3F]" />
-              <span>{t('ui.languages_label') || 'Select Language'}</span>
-            </span>
-            <span className="text-[11px] font-black bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full border border-amber-300">
-              8 Languages
-            </span>
-          </div>
-          <div className="grid grid-cols-4 sm:grid-cols-8 gap-1.5">
-            {LANGUAGES.map((l) => {
-              const active = lang === l.code;
-              return (
-                <button
-                  key={l.code}
-                  type="button"
-                  onClick={() => setLang(l.code)}
-                  className={`py-2 px-1 rounded-xl text-xs font-black text-center transition-all cursor-pointer border-2 ${
-                    active
-                      ? 'bg-[#0A1E3F] text-amber-400 border-[#0A1E3F] shadow-md scale-[1.03] ring-2 ring-amber-400/40'
-                      : 'bg-slate-50 text-slate-800 border-slate-200 hover:bg-amber-50/60 hover:border-amber-300'
-                  }`}
-                >
-                  <span className="block truncate text-xs font-black">{l.native}</span>
-                  <span className={`block text-[9px] font-bold uppercase tracking-wider mt-0.5 ${active ? 'text-amber-300' : 'text-slate-400'}`}>
-                    {l.code}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
+      <main className="flex-1 max-w-3xl w-full mx-auto px-4 sm:px-8 py-8 sm:py-12 space-y-8">
         {status !== 'ok' ? (
           /* STATE A: PNR Input Screen */
-          <div className="space-y-6 pt-1">
+          <div className="space-y-8">
             {/* Indian Railways Hero Header */}
-            <div className="rounded-3xl bg-gradient-to-r from-[#07162C] via-[#0A1E3F] to-[#123363] text-white p-6 shadow-md border-2 border-slate-900 relative overflow-hidden">
-              <div className="absolute right-0 top-0 bottom-0 opacity-10 pointer-events-none flex items-center pr-4">
-                <Train className="w-40 h-40 text-white" />
-              </div>
-
-              <div className="relative z-10 space-y-2">
-                <span className="inline-block bg-amber-400 text-slate-950 px-3 py-1 font-black text-xs uppercase tracking-wider rounded-lg shadow-2xs">
-                  {t('ui.badge_pnr_status') || 'Indian Railways PNR Status'}
-                </span>
-                <h1 className="text-2xl sm:text-3xl font-black leading-tight tracking-tight text-white drop-shadow-xs">
-                  {t('ui.enter_pnr')}
-                </h1>
-                <p className="text-sm font-semibold text-slate-200 leading-relaxed">
-                  {t('ui.pnr_subtitle') || 'Enter your 10-digit ticket number to get plain-language updates in your own language.'}
-                </p>
-              </div>
-            </div>
-
-            {/* Quick Test Scenarios Cards */}
-            <div className="space-y-2.5">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-black uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-                  <span>{t('ui.quick_scenarios') || 'Quick Test Scenarios'}</span>
-                </span>
-                <span className="text-[11px] font-semibold text-slate-500">1-Tap to inspect</span>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2.5">
-                {testScenarios.map((item) => (
-                  <button
-                    key={item.pnr}
-                    type="button"
-                    onClick={() => handleQuickPnr(item.pnr)}
-                    className={`p-3.5 rounded-2xl border-2 text-left transition shadow-xs hover:scale-[1.02] active:scale-[0.99] cursor-pointer group bg-white ${item.accent}`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="font-black text-sm text-slate-900 group-hover:text-[#0A1E3F]">
-                        {item.label}
-                      </span>
-                      <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${item.badge}`}>
-                        {item.desc}
-                      </span>
-                    </div>
-                    <span className="block text-xs font-bold text-slate-500 mt-2 truncate">
-                      {item.tag}
-                    </span>
-                  </button>
-                ))}
-              </div>
+            <div className="rounded-3xl bg-white text-slate-950 p-6 sm:p-8 border-3 border-slate-900 shadow-[6px_6px_0px_0px_#0f172a] space-y-3 relative overflow-hidden">
+              <span className="inline-flex items-center gap-2 bg-amber-400 text-slate-950 px-3.5 py-1.5 font-black text-xs uppercase tracking-wider rounded-xl border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0f172a]">
+                <Train className="w-4 h-4 stroke-[2.5]" />
+                <span>{t('ui.badge_pnr_status') || 'Official Indian Railways Assistant'}</span>
+              </span>
+              <h1 className="text-3xl sm:text-4xl font-black leading-tight tracking-tight text-slate-950">
+                {t('ui.enter_pnr')}
+              </h1>
+              <p className="text-base sm:text-lg font-bold text-slate-700 leading-relaxed max-w-2xl">
+                {t('ui.pnr_subtitle') || 'Enter your 10-digit ticket number to get plain-language updates in your own language.'}
+              </p>
             </div>
 
             {/* Indian Railways Boarding Pass Ticket Search Form */}
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="rounded-3xl border-2 border-[#0A1E3F] bg-white shadow-md overflow-hidden relative">
-                {/* Golden Header Strip */}
-                <div className="bg-[#0A1E3F] px-5 py-3 text-white flex items-center justify-between">
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div className="rounded-3xl border-3 border-slate-900 bg-white shadow-[6px_6px_0px_0px_#0f172a] overflow-hidden">
+                {/* Yellow Header Strip */}
+                <div className="bg-amber-400 px-6 py-3.5 text-slate-950 flex items-center justify-between border-b-2 border-slate-900">
                   <div className="flex items-center gap-2">
-                    <Train className="w-4 h-4 text-amber-400" />
-                    <span className="text-xs font-black uppercase tracking-wider text-amber-400">
+                    <Train className="w-5 h-5 text-slate-950 stroke-[2.5]" />
+                    <span className="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-950">
                       {t('ui.pnr_label') || '10-Digit PNR Number'}
                     </span>
                   </div>
-                  <span className={`text-[11px] font-mono font-bold px-3 py-1 rounded-full flex items-center gap-1 transition ${
-                    isTenDigits ? 'bg-emerald-500 text-white shadow-xs' : 'bg-slate-800 text-slate-300'
+                  <span className={`text-xs font-mono font-black px-3 py-1 rounded-xl border-2 border-slate-900 transition-all ${
+                    isTenDigits ? 'bg-emerald-400 text-slate-950 shadow-[1px_1px_0px_0px_#0f172a]' : 'bg-white text-slate-900'
                   }`}>
                     {isTenDigits ? (
-                      <>
+                      <span className="flex items-center gap-1">
                         <Check className="w-3.5 h-3.5 stroke-[3]" />
-                        <span>{t('ui.ready_10_digits') || 'Ready (10 Digits)'}</span>
-                      </>
+                        <span>Ready (10 Digits)</span>
+                      </span>
                     ) : (
                       <span>{cleanDigits.length} / 10 Digits</span>
                     )}
@@ -312,7 +240,7 @@ export default function S2Journey({ journeyState, onOpenBackup, sseConnected }) 
                 </div>
 
                 {/* Input & Action Bar */}
-                <div className="p-5 space-y-3">
+                <div className="p-6 sm:p-7 space-y-4">
                   <div className="flex items-center justify-between gap-3">
                     <input
                       type="tel"
@@ -322,7 +250,7 @@ export default function S2Journey({ journeyState, onOpenBackup, sseConnected }) 
                       onChange={(e) => setPnrInput(e.target.value.replace(/\D/g, ''))}
                       placeholder="4801952313"
                       aria-label={t('ui.enter_pnr')}
-                      className="w-full bg-transparent text-2xl sm:text-3xl font-black tracking-widest text-[#0A1E3F] outline-none font-mono placeholder:text-slate-300"
+                      className="w-full bg-transparent text-3xl sm:text-4xl font-black tracking-widest text-slate-950 outline-none font-mono placeholder:text-slate-300"
                     />
 
                     <div className="flex items-center gap-2 shrink-0">
@@ -330,9 +258,9 @@ export default function S2Journey({ journeyState, onOpenBackup, sseConnected }) 
                         <button
                           type="button"
                           onClick={handlePaste}
-                          className="px-3 py-1.5 rounded-xl border border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                          className="px-4 py-2 rounded-xl border-2 border-slate-900 bg-white hover:bg-amber-100 text-slate-950 text-xs font-black shadow-[2px_2px_0px_0px_#0f172a] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition flex items-center gap-1.5 cursor-pointer"
                         >
-                          <ClipboardPaste className="w-3.5 h-3.5 text-slate-600" />
+                          <ClipboardPaste className="w-4 h-4 text-slate-950 stroke-[2.5]" />
                           <span>{t('ui.paste') || 'Paste'}</span>
                         </button>
                       )}
@@ -341,9 +269,9 @@ export default function S2Journey({ journeyState, onOpenBackup, sseConnected }) 
                         <button
                           type="button"
                           onClick={() => setPnrInput('')}
-                          className="px-3 py-1.5 rounded-xl border border-slate-300 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                          className="px-4 py-2 rounded-xl border-2 border-slate-900 bg-white hover:bg-slate-100 text-slate-950 text-xs font-black shadow-[2px_2px_0px_0px_#0f172a] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition flex items-center gap-1.5 cursor-pointer"
                         >
-                          <X className="w-3.5 h-3.5" />
+                          <X className="w-4 h-4 stroke-[2.5]" />
                           <span>{t('ui.clear') || 'Clear'}</span>
                         </button>
                       )}
@@ -351,12 +279,12 @@ export default function S2Journey({ journeyState, onOpenBackup, sseConnected }) 
                   </div>
 
                   {/* Character Progress Pip Line */}
-                  <div className="flex items-center gap-1 pt-1">
+                  <div className="flex items-center gap-1.5 pt-1">
                     {Array.from({ length: 10 }).map((_, i) => (
                       <div
                         key={i}
-                        className={`h-1.5 flex-1 rounded-full transition-all duration-200 ${
-                          i < cleanDigits.length ? 'bg-amber-500' : 'bg-slate-200'
+                        className={`h-2 flex-1 rounded-full border border-slate-900 transition-all duration-200 ${
+                          i < cleanDigits.length ? 'bg-amber-400' : 'bg-slate-100'
                         }`}
                       />
                     ))}
@@ -367,9 +295,9 @@ export default function S2Journey({ journeyState, onOpenBackup, sseConnected }) 
               {errorCode && (
                 <div
                   role="alert"
-                  className="p-4 rounded-2xl bg-red-50 text-red-900 border-2 border-red-300 font-bold text-sm flex items-start gap-3 shadow-xs"
+                  className="p-5 rounded-2xl bg-red-100 text-red-950 border-2 border-slate-900 font-bold text-base flex items-start gap-3.5 shadow-[3px_3px_0px_0px_#0f172a]"
                 >
-                  <AlertTriangle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+                  <AlertTriangle className="w-6 h-6 text-red-600 shrink-0 stroke-[2.5]" />
                   <div>
                     <span className="font-black block">{t('ui.error_label') || 'Error'}</span>
                     <span>{t(`error.${errorCode}`) || 'Ticket not found or network down.'}</span>
@@ -387,33 +315,68 @@ export default function S2Journey({ journeyState, onOpenBackup, sseConnected }) 
               </BigButton>
             </form>
 
-            <div className="pt-1 flex items-center justify-between">
+            {/* Quick Test Scenarios Cards */}
+            <div className="space-y-3 pt-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                  <Sparkles className="w-4 h-4 text-amber-500" />
+                  <span>{t('ui.quick_scenarios') || 'Quick Test Scenarios (1-Tap Test)'}</span>
+                </span>
+                <span className="text-xs font-bold text-slate-500">Official Cases</span>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {testScenarios.map((item) => (
+                  <button
+                    key={item.pnr}
+                    type="button"
+                    onClick={() => handleQuickPnr(item.pnr)}
+                    className={`p-4 rounded-2xl border-2 text-left transition shadow-[3px_3px_0px_0px_#0f172a] hover:-translate-y-0.5 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none cursor-pointer ${item.accent}`}
+                  >
+                    <div className="flex items-center justify-between gap-1">
+                      <span className="font-black text-base text-slate-950">
+                        {item.label}
+                      </span>
+                    </div>
+                    <span className={`inline-block text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-lg mt-2 ${item.badge}`}>
+                      {item.desc}
+                    </span>
+                    <span className="block text-xs font-bold text-slate-600 mt-2 truncate">
+                      {item.tag}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Helper Links */}
+            <div className="pt-2 flex flex-wrap items-center justify-between gap-3">
               <button
                 type="button"
                 onClick={() => openTerm('pnr')}
-                className="inline-flex items-center gap-2 font-black text-sm text-[#0A1E3F] hover:underline cursor-pointer"
+                className="inline-flex items-center gap-2 font-black text-sm text-slate-950 bg-white border-2 border-slate-900 px-4 py-2 rounded-xl shadow-[2px_2px_0px_0px_#0f172a] hover:bg-amber-50 active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition cursor-pointer"
               >
-                <HelpCircle className="w-4 h-4 text-amber-600" />
+                <HelpCircle className="w-4 h-4 text-amber-600 stroke-[2.5]" />
                 <span>{t('ui.what_is_pnr')}</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setActiveSheet('glossary')}
-                className="inline-flex items-center gap-1.5 font-bold text-xs text-slate-600 hover:text-slate-900 cursor-pointer"
+                className="inline-flex items-center gap-2 font-black text-sm text-slate-950 bg-white border-2 border-slate-900 px-4 py-2 rounded-xl shadow-[2px_2px_0px_0px_#0f172a] hover:bg-amber-50 active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition cursor-pointer"
               >
-                <BookOpen className="w-4 h-4" />
-                <span>{t('ui.glossary')}</span>
+                <BookOpen className="w-4 h-4 text-slate-700 stroke-[2.5]" />
+                <span>{t('ui.glossary')} (14 Terms)</span>
               </button>
             </div>
           </div>
         ) : (
           /* STATE B: Journey Loaded */
-          <div className="space-y-5">
+          <div className="space-y-8">
             {/* Quick Test Switcher Bar (in Journey View) */}
-            <div className="flex items-center justify-between gap-2 overflow-x-auto pb-1 no-scrollbar">
-              <span className="text-[11px] font-black uppercase text-slate-500 shrink-0">Switch:</span>
-              <div className="flex items-center gap-1.5">
+            <div className="flex items-center justify-between gap-3 p-3 bg-white border-2 border-slate-900 rounded-2xl shadow-[3px_3px_0px_0px_#0f172a]">
+              <span className="text-xs font-black uppercase text-slate-700 shrink-0">Switch Scenario:</span>
+              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
                 {testScenarios.map((item) => {
                   const active = journey?.pnr === item.pnr;
                   return (
@@ -421,10 +384,10 @@ export default function S2Journey({ journeyState, onOpenBackup, sseConnected }) 
                       key={item.pnr}
                       type="button"
                       onClick={() => handleQuickPnr(item.pnr)}
-                      className={`px-3 py-1 rounded-full text-xs font-black transition cursor-pointer shrink-0 ${
+                      className={`px-3.5 py-1.5 rounded-xl text-xs font-black border-2 transition cursor-pointer shrink-0 ${
                         active
-                          ? 'bg-[#0A1E3F] text-amber-400 shadow-xs'
-                          : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-100'
+                          ? 'bg-slate-900 text-amber-400 border-slate-900 shadow-[2px_2px_0px_0px_#0f172a]'
+                          : 'bg-white text-slate-900 border-slate-900 hover:bg-amber-50'
                       }`}
                     >
                       {item.label}
@@ -436,23 +399,23 @@ export default function S2Journey({ journeyState, onOpenBackup, sseConnected }) 
 
             {/* Offline or Cached Banner */}
             {(journey?.data_source === 'cached' || errorCode) && (
-              <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-300 font-bold text-xs text-amber-950 flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+              <div className="p-4 rounded-2xl bg-amber-100 border-2 border-slate-900 font-bold text-sm text-amber-950 flex items-center gap-3 shadow-[3px_3px_0px_0px_#0f172a]">
+                <AlertTriangle className="w-5 h-5 text-amber-700 shrink-0 stroke-[2.5]" />
                 <span>{t(errorCode === 'offline' ? 'error.offline' : 'error.nodata')}</span>
               </div>
             )}
 
-            {/* Classic Hero Status Card */}
+            {/* Neo-brutalist Status Card */}
             <StatusCard journey={journey} onOpenTerm={openTerm} />
 
-            {/* Side-by-side Listen & Refresh Buttons */}
-            <div className="grid grid-cols-2 gap-3 pt-1">
+            {/* Side-by-side Listen & Refresh Action Buttons */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <BigButton
                 icon={speaking ? VolumeX : Volume2}
                 variant={speaking ? 'accent' : 'secondary'}
                 onClick={() => (speaking ? cancel() : speak(buildSpokenSummary()))}
               >
-                {speaking ? t('ui.stop') : t('ui.listen')}
+                {speaking ? t('ui.stop') : `${t('ui.listen')} (Audio Status)`}
               </BigButton>
 
               <BigButton
@@ -461,29 +424,29 @@ export default function S2Journey({ journeyState, onOpenBackup, sseConnected }) 
                 onClick={handleRefresh}
                 className={isRefreshing ? 'animate-pulse' : ''}
               >
-                {isRefreshing ? 'Updating...' : t('ui.refresh')}
+                {isRefreshing ? 'Updating from IRCTC...' : t('ui.refresh')}
               </BigButton>
             </div>
 
             {voiceUnavailable && (
-              <p className="text-xs font-bold text-amber-900 bg-amber-50 border border-amber-300 rounded-xl p-3">
+              <p className="text-xs font-bold text-amber-950 bg-amber-100 border-2 border-slate-900 rounded-2xl p-4 shadow-[2px_2px_0px_0px_#0f172a]">
                 {t('ui.voice_unavailable')}
               </p>
             )}
 
             {/* Primary Action Button: Backup Plan */}
-            <BigButton icon={Compass} variant="primary" onClick={onOpenBackup}>
-              {t('ui.backup_plan')}
+            <BigButton icon={Compass} variant="accent" onClick={onOpenBackup}>
+              {t('ui.backup_plan')} (Alternative Trains & State Buses)
             </BigButton>
 
             {/* Secondary Utility Row (Family Share & Alerts) */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <BigButton
                 icon={Users}
                 variant="secondary"
                 onClick={() => setActiveSheet('share')}
               >
-                {t('ui.share')}
+                {t('ui.share')} (WhatsApp / SMS)
               </BigButton>
 
               <BigButton
@@ -491,69 +454,168 @@ export default function S2Journey({ journeyState, onOpenBackup, sseConnected }) 
                 variant="secondary"
                 onClick={() => setActiveSheet('alerts')}
               >
-                {t('ui.alerts')}
+                {t('ui.alerts')} (WhatsApp & SMS)
               </BigButton>
             </div>
 
             {/* Tertiary Utility Buttons (Glossary, Settings, Call 139) */}
-            <div className="grid grid-cols-3 gap-2.5 pt-1">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <button
                 type="button"
                 onClick={() => {
                   setTermId(null);
                   setActiveSheet('glossary');
                 }}
-                className="min-h-[48px] px-3 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 font-bold text-xs sm:text-sm text-slate-800 flex items-center justify-center gap-1.5 transition shadow-2xs cursor-pointer"
+                className="min-h-[54px] px-4 rounded-2xl border-2 border-slate-900 bg-white hover:bg-slate-50 font-black text-sm text-slate-950 flex items-center justify-center gap-2 shadow-[3px_3px_0px_0px_#0f172a] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition cursor-pointer"
               >
-                <BookOpen className="w-4 h-4 text-slate-600 shrink-0" />
+                <BookOpen className="w-5 h-5 text-slate-900 stroke-[2.5]" />
                 <span>{t('ui.glossary')}</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setActiveSheet('a11y')}
-                className="min-h-[48px] px-3 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 font-bold text-xs sm:text-sm text-slate-800 flex items-center justify-center gap-1.5 transition shadow-2xs cursor-pointer"
+                className="min-h-[54px] px-4 rounded-2xl border-2 border-slate-900 bg-white hover:bg-slate-50 font-black text-sm text-slate-950 flex items-center justify-center gap-2 shadow-[3px_3px_0px_0px_#0f172a] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition cursor-pointer"
               >
-                <Settings className="w-4 h-4 text-slate-600 shrink-0" />
+                <Settings className="w-5 h-5 text-slate-900 stroke-[2.5]" />
                 <span>{t('ui.settings')}</span>
               </button>
 
               <a
                 href="tel:139"
-                className="min-h-[48px] px-3 rounded-xl border border-red-200 bg-red-50 hover:bg-red-100 font-bold text-xs sm:text-sm text-red-800 flex items-center justify-center gap-1.5 transition shadow-2xs cursor-pointer text-center"
+                className="min-h-[54px] px-4 rounded-2xl border-2 border-slate-900 bg-red-100 hover:bg-red-200 font-black text-sm text-red-950 flex items-center justify-center gap-2 shadow-[3px_3px_0px_0px_#0f172a] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition cursor-pointer"
               >
-                <PhoneCall className="w-4 h-4 text-red-700 shrink-0" />
-                <span>139 Help</span>
+                <PhoneCall className="w-5 h-5 text-red-700 stroke-[2.5]" />
+                <span>139 Helpline</span>
               </a>
             </div>
 
-            {/* Interactive Live SSE Change Event Simulation Hub */}
+            {/* Station Amenities & Passenger Facilities Guide (From Report §10) */}
+            <section className="rounded-3xl bg-white border-3 border-slate-900 p-6 sm:p-8 shadow-[6px_6px_0px_0px_#0f172a] space-y-5">
+              <div className="flex items-center justify-between border-b-2 border-slate-900 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <Luggage className="w-6 h-6 text-slate-950 stroke-[2.5]" />
+                  <h3 className="text-xl sm:text-2xl font-black text-slate-950 tracking-tight">
+                    Station Facilities & Amenities Guide
+                  </h3>
+                </div>
+                <span className="text-xs font-black uppercase bg-amber-400 text-slate-950 px-2.5 py-1 rounded-lg border border-slate-900">
+                  IRCTC Official
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="p-4 rounded-2xl border-2 border-slate-900 bg-[#FCFCF9] space-y-1 shadow-[2px_2px_0px_0px_#0f172a]">
+                  <h4 className="text-sm font-black text-slate-950 flex items-center gap-1.5">
+                    <span>🏠 Retiring Rooms & AC Waiting Halls</span>
+                  </h4>
+                  <p className="text-xs font-bold text-slate-700 leading-relaxed">
+                    Air-conditioned and general waiting halls available on Platform 1 & 4. Free access for Confirmed & RAC passengers. Book retiring rooms via IRCTC tourism.
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-2xl border-2 border-slate-900 bg-[#FCFCF9] space-y-1 shadow-[2px_2px_0px_0px_#0f172a]">
+                  <h4 className="text-sm font-black text-slate-950 flex items-center gap-1.5">
+                    <span>🧳 Official Coolie / Porter Fixed Tariff</span>
+                  </h4>
+                  <p className="text-xs font-bold text-slate-700 leading-relaxed">
+                    Standard fixed tariff: ₹80 to ₹120 for headload up to 40 kg per trip. Report overcharging immediately to Rail Madad 139 or station RPF.
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-2xl border-2 border-slate-900 bg-[#FCFCF9] space-y-1 shadow-[2px_2px_0px_0px_#0f172a]">
+                  <h4 className="text-sm font-black text-slate-950 flex items-center gap-1.5">
+                    <span>♿ Wheelchair & Senior Citizen Facilitation</span>
+                  </h4>
+                  <p className="text-xs font-bold text-slate-700 leading-relaxed">
+                    Free wheelchairs available at the Station Master enquiry office. Battery-operated transit cars operate between platforms for senior citizens & Divyangjan.
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-2xl border-2 border-slate-900 bg-[#FCFCF9] space-y-1 shadow-[2px_2px_0px_0px_#0f172a]">
+                  <h4 className="text-sm font-black text-slate-950 flex items-center gap-1.5">
+                    <span>🔒 Cloak Room & Luggage Lockers</span>
+                  </h4>
+                  <p className="text-xs font-bold text-slate-700 leading-relaxed">
+                    Secure luggage storage at ₹20 per package for 24 hours. Luggage must be securely locked and passenger must show a valid ticket.
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-xl border border-slate-300 bg-slate-50 flex items-center justify-between text-xs font-bold text-slate-700">
+                <span className="flex items-center gap-2">
+                  <Coffee className="w-4 h-4 text-amber-600" />
+                  <span>Jan Aahaar food plaza (Standard meals ₹20–₹50) & RO Water Vending Machines (1L @ ₹5).</span>
+                </span>
+              </div>
+            </section>
+
+            {/* Passenger Rights & TDR Refund Advisory (From Report §10) */}
+            <section className="rounded-3xl bg-amber-50 border-3 border-slate-900 p-6 sm:p-8 shadow-[6px_6px_0px_0px_#0f172a] space-y-4">
+              <div className="flex items-center gap-2.5 border-b-2 border-slate-900 pb-3">
+                <ShieldCheck className="w-6 h-6 text-slate-950 stroke-[2.5]" />
+                <h3 className="text-xl sm:text-2xl font-black text-slate-950 tracking-tight">
+                  Indian Railways Passenger Rights & TDR Refund Rules
+                </h3>
+              </div>
+
+              <div className="space-y-3 text-sm font-bold text-slate-900">
+                <div className="flex items-start gap-2.5">
+                  <span className="w-6 h-6 rounded-lg bg-amber-400 text-slate-950 font-black flex items-center justify-center shrink-0 border border-slate-900 text-xs">
+                    1
+                  </span>
+                  <p className="leading-relaxed">
+                    <strong>Train Delayed Over 3 Hours:</strong> You are entitled to a 100% full fare refund without cancellation charges if you decide not to travel. File TDR before actual train departure.
+                  </p>
+                </div>
+
+                <div className="flex items-start gap-2.5">
+                  <span className="w-6 h-6 rounded-lg bg-amber-400 text-slate-950 font-black flex items-center justify-center shrink-0 border border-slate-900 text-xs">
+                    2
+                  </span>
+                  <p className="leading-relaxed">
+                    <strong>Waitlisted After Chart Preparation:</strong> For e-tickets, if your ticket remains in Waiting List (WL) after chart preparation, IRCTC automatically cancels it and credits the full refund to your bank account.
+                  </p>
+                </div>
+
+                <div className="flex items-start gap-2.5">
+                  <span className="w-6 h-6 rounded-lg bg-amber-400 text-slate-950 font-black flex items-center justify-center shrink-0 border border-slate-900 text-xs">
+                    3
+                  </span>
+                  <p className="leading-relaxed">
+                    <strong>24x7 Rail Madad Helplines:</strong> Security helpline dial <strong>182</strong> · All-in-One Railway helpline dial <strong>139</strong> · Disaster management dial <strong>1072</strong>.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            {/* Interactive Live SSE Change Event Simulation Drawer */}
             <div className="pt-2">
               <button
                 type="button"
                 onClick={() => setShowSimulator((v) => !v)}
-                className="w-full py-3 px-4 rounded-2xl border-2 border-amber-400 bg-amber-50 hover:bg-amber-100/80 text-amber-950 font-black text-xs flex items-center justify-between transition cursor-pointer shadow-xs"
+                className="w-full py-4 px-5 rounded-2xl border-2 border-slate-900 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-sm flex items-center justify-between transition cursor-pointer shadow-[3px_3px_0px_0px_#0f172a] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
               >
-                <span className="flex items-center gap-2">
-                  <Zap className="w-4 h-4 text-amber-600 fill-amber-500" />
+                <span className="flex items-center gap-2.5">
+                  <Zap className="w-5 h-5 text-slate-950 stroke-[2.5]" />
                   <span>Test Real-Time Live SSE Events (S4 Emergency Alert)</span>
                 </span>
-                <span className="text-[11px] font-bold underline">
-                  {showSimulator ? 'Hide Drawer' : 'Open Drawer'}
+                <span className="text-xs font-black underline">
+                  {showSimulator ? 'Close Drawer' : 'Open Drawer'}
                 </span>
               </button>
 
               {showSimulator && (
-                <div className="mt-2.5 p-4 rounded-2xl bg-white border-2 border-amber-300 space-y-3 shadow-md animate-slide-up">
-                  <p className="text-xs font-semibold text-slate-600">
+                <div className="mt-4 p-5 rounded-3xl bg-white border-3 border-slate-900 space-y-4 shadow-[6px_6px_0px_0px_#0f172a] animate-slide-up">
+                  <p className="text-xs font-bold text-slate-600">
                     Push real Server-Sent Events (SSE) to test full-screen alerts and live state changes:
                   </p>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <button
                       type="button"
                       disabled={triggeringEvent !== null}
                       onClick={() => triggerLiveDemoEvent('platform_changed')}
-                      className="p-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-amber-100 text-xs font-black text-slate-900 text-left transition cursor-pointer"
+                      className="p-3.5 rounded-xl border-2 border-slate-900 bg-amber-50 hover:bg-amber-100 text-xs font-black text-slate-950 text-left transition cursor-pointer shadow-[2px_2px_0px_0px_#0f172a] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
                     >
                       📢 Platform 3 ➔ 6
                     </button>
@@ -561,7 +623,7 @@ export default function S2Journey({ journeyState, onOpenBackup, sseConnected }) 
                       type="button"
                       disabled={triggeringEvent !== null}
                       onClick={() => triggerLiveDemoEvent('delayed')}
-                      className="p-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-amber-100 text-xs font-black text-slate-900 text-left transition cursor-pointer"
+                      className="p-3.5 rounded-xl border-2 border-slate-900 bg-amber-50 hover:bg-amber-100 text-xs font-black text-slate-950 text-left transition cursor-pointer shadow-[2px_2px_0px_0px_#0f172a] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
                     >
                       ⏱ +45m Train Delay
                     </button>
@@ -569,7 +631,7 @@ export default function S2Journey({ journeyState, onOpenBackup, sseConnected }) 
                       type="button"
                       disabled={triggeringEvent !== null}
                       onClick={() => triggerLiveDemoEvent('cancelled')}
-                      className="p-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-red-100 text-xs font-black text-slate-900 text-left transition cursor-pointer"
+                      className="p-3.5 rounded-xl border-2 border-slate-900 bg-red-50 hover:bg-red-100 text-xs font-black text-red-950 text-left transition cursor-pointer shadow-[2px_2px_0px_0px_#0f172a] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
                     >
                       ⚠️ Train Cancelled
                     </button>
@@ -577,7 +639,7 @@ export default function S2Journey({ journeyState, onOpenBackup, sseConnected }) 
                       type="button"
                       disabled={triggeringEvent !== null}
                       onClick={() => triggerLiveDemoEvent('confirmed')}
-                      className="p-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-emerald-100 text-xs font-black text-slate-900 text-left transition cursor-pointer"
+                      className="p-3.5 rounded-xl border-2 border-slate-900 bg-emerald-50 hover:bg-emerald-100 text-xs font-black text-emerald-950 text-left transition cursor-pointer shadow-[2px_2px_0px_0px_#0f172a] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
                     >
                       🎉 Ticket Confirmed
                     </button>
@@ -586,7 +648,7 @@ export default function S2Journey({ journeyState, onOpenBackup, sseConnected }) 
                     <button
                       type="button"
                       onClick={handleResetDemo}
-                      className="text-xs font-bold text-slate-500 hover:text-slate-900 underline cursor-pointer"
+                      className="text-xs font-black text-slate-700 hover:text-slate-950 underline cursor-pointer"
                     >
                       Reset Journey to Initial State
                     </button>
@@ -596,8 +658,8 @@ export default function S2Journey({ journeyState, onOpenBackup, sseConnected }) 
             </div>
 
             {/* Official Indian Railways Trust Footer */}
-            <div className="pt-3 text-center space-y-1">
-              <p className="text-xs font-semibold text-slate-500 leading-snug">
+            <div className="pt-4 text-center space-y-1">
+              <p className="text-xs font-bold text-slate-500 leading-snug">
                 {t('trust.note', { ago: minutesAgo(journey?.last_updated_iso) })}
               </p>
             </div>

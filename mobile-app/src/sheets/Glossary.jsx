@@ -34,15 +34,15 @@ export default function Glossary({ open, onClose, initialTermId = null }) {
   return (
     <Sheet open={open} onClose={onClose} title={t('ui.glossary')}>
       {selectedId ? (
-        <div className="space-y-4">
-          <div className="rounded-[24px] bg-[#FFD600] border-2 border-[#0A0A0A] p-5 space-y-2">
-            <span className="inline-block bg-[#0A0A0A] text-[#FFD600] text-xs font-extrabold uppercase px-2.5 py-0.5 rounded-full">
+        <div className="space-y-4 pt-1">
+          <div className="rounded-2xl bg-amber-400 border-2 border-slate-900 p-6 space-y-2 shadow-[4px_4px_0px_0px_#0f172a]">
+            <span className="inline-block bg-slate-900 text-amber-400 text-xs font-black uppercase px-3 py-1 rounded-lg border border-slate-900">
               {selectedId}
             </span>
-            <h3 className="text-[1.45rem] font-extrabold leading-tight">
+            <h3 className="text-2xl font-black text-slate-950 leading-tight">
               {t(`term.${selectedId}.name`)}
             </h3>
-            <p className="text-[1.1rem] font-semibold leading-relaxed pt-1">
+            <p className="text-base sm:text-lg font-bold text-slate-900 leading-relaxed pt-1">
               {t(`term.${selectedId}.meaning`)}
             </p>
           </div>
@@ -58,7 +58,7 @@ export default function Glossary({ open, onClose, initialTermId = null }) {
           </BigButton>
 
           {voiceUnavailable && (
-            <p className="text-xs font-bold bg-white border-2 border-[#0A0A0A] rounded-2xl p-3">
+            <p className="text-xs font-bold bg-white border-2 border-slate-900 rounded-2xl p-4 shadow-[2px_2px_0px_0px_#0f172a]">
               {t('ui.voice_unavailable')}
             </p>
           )}
@@ -74,27 +74,33 @@ export default function Glossary({ open, onClose, initialTermId = null }) {
           )}
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-4 pt-1">
           <div className="relative">
-            <Search className="w-5 h-5 absolute left-4 top-4 text-[#0A0A0A]/60" />
+            <Search className="w-5 h-5 absolute left-4 top-4 text-slate-900" />
             <input
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="WL, RAC, GNWL, chart..."
-              className="w-full min-h-[56px] pl-12 pr-5 rounded-full border-2 border-[#0A0A0A] bg-white font-bold outline-none"
+              placeholder="Search WL, RAC, GNWL, chart, berth..."
+              className="w-full min-h-[56px] pl-12 pr-5 rounded-2xl border-2 border-slate-900 bg-white font-black text-base text-slate-900 outline-none shadow-[2px_2px_0px_0px_#0f172a] focus:ring-2 focus:ring-amber-400"
             />
           </div>
-          <div className="space-y-2">
+
+          <div className="space-y-2.5 max-h-[50vh] overflow-y-auto pr-1">
             {filtered.map((id) => (
               <button
                 key={id}
                 type="button"
                 onClick={() => setSelectedId(id)}
-                className="w-full min-h-[56px] px-5 py-3 rounded-full border-2 border-[#0A0A0A] bg-white hover:bg-[#FFD600] transition text-left flex items-center justify-between gap-3 font-extrabold"
+                className="w-full min-h-[56px] px-5 py-3 rounded-2xl border-2 border-slate-900 bg-white hover:bg-amber-100 transition-all text-left flex items-center justify-between gap-3 font-black shadow-[2px_2px_0px_0px_#0f172a] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none cursor-pointer"
               >
-                <span>{t(`term.${id}.name`)}</span>
-                <span>→</span>
+                <div className="flex items-center gap-2.5">
+                  <span className="w-8 h-8 rounded-lg bg-amber-400 text-slate-950 font-mono text-xs flex items-center justify-center border border-slate-900">
+                    {id.toUpperCase().slice(0, 3)}
+                  </span>
+                  <span className="text-base text-slate-950">{t(`term.${id}.name`)}</span>
+                </div>
+                <span className="text-slate-900 font-bold text-lg">➔</span>
               </button>
             ))}
           </div>
